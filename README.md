@@ -1,8 +1,7 @@
-# SelfHelp plugin - plotly-graphs
+# SelfHelp plugin - qualtrics
 
-This is a SelfhelpPlugin that is used for loading plotly charts
+This is a SelfhelpPlugin that is used for [Qualtrics](https://www.qualtrics.com) integration
 
- - The plugin is based on [`plotly.js`](https://plotly.com/javascript/) library
 
 # Installation
 

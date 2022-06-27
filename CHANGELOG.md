@@ -2,4 +2,4 @@
 
 ### New Features
 
- - The plotly-graph related styles
+ - The Qualtrics related styles and components
