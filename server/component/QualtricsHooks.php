@@ -16,13 +16,14 @@ class QualtricsHooks extends BaseHooks
 
     /**
      * The constructor creates an instance of the hooks.
-     *
+     * @param object $services
+     *  The service handler instance which holds all services
      * @param object $params
      *  Various params
      */
-    public function __construct($params = array())
+    public function __construct($services, $params = array())
     {
-        parent::__construct($params);
+        parent::__construct($services, $params);
     }
 
     /* Public Methods *********************************************************/
