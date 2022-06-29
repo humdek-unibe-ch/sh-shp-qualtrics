@@ -41,7 +41,7 @@ class QualtricsHooks extends BaseHooks
             "live_search" => 1,
             "is_required" => 1,
             "disabled"=> $this->params['disabled'],
-            "items" => $this->params['services']->get_db()->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
+            "items" => $this->db->fetch_table_as_select_values('qualtricsSurveys', 'id', array('name', 'qualtrics_survey_id'))
         ));
     }
 
