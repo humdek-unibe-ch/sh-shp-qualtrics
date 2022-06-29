@@ -216,3 +216,10 @@ INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `i
 VALUES (NULL, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]/[i:aid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsSync'), '0000000008', '0000000001', 'Qualtrics Synchronization');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'moduleQualtricsSync'), '1', '0', '0', '0');
+
+
+-- register hook outputStyleField for select-qualtrics-survey
+INSERT IGNORE INTO `hooks_fieldTypes` (`id_hooks`, `id_plugins`,  `id_fieldType`) VALUES ((SELECT id FROM hooks WHERE `name` = 'outputStyleField'), (SELECT id FROM plugins WHERE `name` = 'qualtrics'), (SELECT id FROM fieldType WHERE `name` = 'select-qualtrics-survey'));
+
+-- register hook get_csp_rules
+INSERT IGNORE INTO `hooks_plugins` (`id_hooks`, `id_plugins`) VALUES ((SELECT id FROM hooks WHERE `name` = 'getCspRules'), (SELECT id FROM plugins WHERE `name` = 'qualtrics'));
