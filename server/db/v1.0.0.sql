@@ -189,37 +189,38 @@ INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `
 
 
 -- add Qualtrics module page
-INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtrics', '/admin/qualtrics', 'GET|POST', '0000000002', NULL, '0000000009', '0', '90', NULL, '0000000001');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtrics'), '0000000008', '0000000001', 'Module Qualtrics');
+INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (NULL, 'moduleQualtrics', '/admin/qualtrics', 'GET|POST', '0000000002', NULL, '0000000009', '0', '90', NULL, '0000000001', (SELECT id FROM lookups WHERE lookup_code = "mobile_and_web" LIMIT 0, 1));
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtrics'), get_field_id('title'), '0000000002', 'Module Qualtrics');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'moduleQualtrics'), '1', '0', '1', '0');
 
 -- add insert qualtrics projects page
-INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtricsProject', '/admin/qualtrics/project/[select|update|insert|delete:mode]?/[i:pid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsProject'), '0000000008', '0000000001', 'Qualtrics Projects');
+INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (NULL, 'moduleQualtricsProject', '/admin/qualtrics/project/[select|update|insert|delete:mode]?/[i:pid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001', (SELECT id FROM lookups WHERE lookup_code = "mobile_and_web" LIMIT 0, 1));
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsProject'), get_field_id('title'), '0000000002', 'Qualtrics Projects');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'moduleQualtricsProject'), '1', '1', '1', '1');
 
-INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsSurvey'), '0000000008', '0000000001', 'Qualtrics Survey');
+INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (NULL, 'moduleQualtricsSurvey', '/admin/qualtrics/survey/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001', (SELECT id FROM lookups WHERE lookup_code = "mobile_and_web" LIMIT 0, 1));
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsSurvey'), get_field_id('title'), '0000000002', 'Qualtrics Survey');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'moduleQualtricsSurvey'), '1', '1', '1', '1');
 
 -- add action to project
-INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsProjectAction'), '0000000008', '0000000001', 'Qualtrics Project Action');
+INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (NULL, 'moduleQualtricsProjectAction', '/admin/qualtrics/action/[i:pid]/[select|update|insert|delete:mode]?/[i:sid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001', (SELECT id FROM lookups WHERE lookup_code = "mobile_and_web" LIMIT 0, 1));
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsProjectAction'), get_field_id('title'), '0000000002', 'Qualtrics Project Action');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'moduleQualtricsProjectAction'), '1', '1', '1', '1');
 
 -- add qualtricsSync page
-INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`) 
-VALUES (NULL, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]/[i:aid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001');
-INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsSync'), '0000000008', '0000000001', 'Qualtrics Synchronization');
+INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
+VALUES (NULL, 'moduleQualtricsSync', '/admin/qualtrics/sync/[i:pid]/[i:aid]?', 'GET|POST', '0000000002', NULL, '0000000009', '0', NULL, NULL, '0000000001', (SELECT id FROM lookups WHERE lookup_code = "mobile_and_web" LIMIT 0, 1));
+INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES ((SELECT id FROM pages WHERE keyword = 'moduleQualtricsSync'), get_field_id('title'), '0000000002', 'Qualtrics Synchronization');
 INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_insert`, `acl_update`, `acl_delete`) VALUES ('0000000001', (SELECT id FROM pages WHERE keyword = 'moduleQualtricsSync'), '1', '0', '0', '0');
 
 
--- register hook outputStyleField for select-qualtrics-survey
-INSERT IGNORE INTO `hooks_fieldTypes` (`id_hooks`, `id_plugins`,  `id_fieldType`) VALUES ((SELECT id FROM hooks WHERE `name` = 'outputStyleField'), (SELECT id FROM plugins WHERE `name` = 'qualtrics'), (SELECT id FROM fieldType WHERE `name` = 'select-qualtrics-survey'));
+-- register hook  for select-qualtrics-survey field
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`) VALUES ((SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'field-qualtricsSurvey-edit', 'Output select Qualtrics Survey field - edit mdoe', 'CmsView', 'create_field_form_item', 'QualtricsHooks', 'outputFieldQualtricsSurveyEdit');
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`) VALUES ((SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'field-qualtricsSurvey-view', 'Output select Qualtrics Survey field - view mode', 'CmsView', 'create_field_item', 'QualtricsHooks', 'outputFieldQualtricsSurveyView');
 
 -- register hook get_csp_rules
-INSERT IGNORE INTO `hooks_plugins` (`id_hooks`, `id_plugins`) VALUES ((SELECT id FROM hooks WHERE `name` = 'getCspRules'), (SELECT id FROM plugins WHERE `name` = 'qualtrics'));
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`) VALUES ((SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'qualtrics-addCspRule', 'Add csp rule for Qualtrics iframe', 'BasePage', 'getCspRules', 'QualtricsHooks', 'setCspRules');
