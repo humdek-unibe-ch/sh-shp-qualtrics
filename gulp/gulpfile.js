@@ -10,6 +10,7 @@ var babel = require('gulp-babel');
 // Gulp task to minify CSS files
 gulp.task('styles', function () {
     return gulp.src(['../server/component/style/css/*.css',
+        '../server/component/**/css/*.css',
         '../server/component/style/**/css/*.css'])
     // Minify the file
     .pipe(csso())
@@ -22,7 +23,8 @@ gulp.task('styles', function () {
 // Gulp task to minify JavaScript files
 gulp.task('scripts', function() {
     return gulp.src(['../server/component/style/js/*.js',
-        '../server/component/style/**/js/*.js'])
+        '../server/component/style/**/js/*.js',        
+        '../server/component/**/js/*.js'])
         .pipe(babel({
             presets: ['@babel/preset-env']
         }))

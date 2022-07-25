@@ -95,7 +95,7 @@ class QualtricsSurveyConfigBuilderView extends FormFieldView
             if (DEBUG) {
                 $local = array( __DIR__ . "/js/qualtricsSurveyConfigBuilder.js");
             } else {
-                $local = array(__DIR__ . "/../../../../js/ext/qualtrics.js?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../../qualtrics/js/ext/qualtrics.min.js?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_js_includes($local);
