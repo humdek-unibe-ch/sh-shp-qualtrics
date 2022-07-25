@@ -138,6 +138,8 @@ INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_descrip
 
 -- Add new style QualtricsSurvey
 INSERT IGNORE INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('qualtricsSurvey', '2', (select id from styleGroup where `name` = 'Form' limit 1), 'Visualize a qualtrics survey. It is shown in iFrame.');
+-- Add new style `qualtricsSurveyConfigBuilder`
+INSERT IGNORE INTO `styles` (`name`, `id_type`, id_group, description) VALUES ('qualtricsSurveyConfigBuilder', '1', (select id from styleGroup where `name` = 'intern' limit 1), 'Internal style used for the configuration of an Qulatrics Survey');
 
 -- Add new field type `select-qualtrics-survey` and field `survey` in style qualtricsSurvey
 INSERT IGNORE INTO `fieldType` (`id`, `name`, `position`) VALUES (NULL, 'select-qualtrics-survey', '7');
