@@ -156,7 +156,7 @@ class QualtricsSurveyView extends StyleView
             if (DEBUG) {
                 $local = array(__DIR__ . "/css/qualtricsSurvey.css");
             } else {
-                $local = array(__DIR__ . "/../../../../css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../../qualtrics/css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_css_includes($local);

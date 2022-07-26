@@ -349,7 +349,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
             if (DEBUG) {
                 $local = array(__DIR__ . "/../style/qualtricsSurveyConfigBuilder/css/qualtricsSurveyConfigBuilder.css");
             } else {
-                $local = array(__DIR__ . "/../../../../css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../../qualtrics/css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_css_includes($local);
