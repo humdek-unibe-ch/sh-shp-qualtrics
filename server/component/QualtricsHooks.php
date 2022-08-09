@@ -53,10 +53,6 @@ class QualtricsHooks extends BaseHooks
 
     /**
      * Return a BaseStyleComponent object
-     * @param object hookedClassInstance
-     * The class which was hooked
-     * @param string $methodName
-     * The name of the method that we want to execute
      * @param object $args
      * Params passed to the method
      * @param int $disabled 0 or 1
@@ -64,11 +60,11 @@ class QualtricsHooks extends BaseHooks
      * @return object
      * Return a BaseStyleComponent object
      */
-    private function returnSelectQualtricsField($hookedClassInstance, $methodName, $args, $disabled){
-        $field = $args[0];
-        $res = $this->execute_private_method($hookedClassInstance, $methodName, $field);
-        $field_name_prefix = "fields[" . $field['name'] . "][" . $field['id_language'] . "]" . "[" . $field['id_gender'] . "]";
-        if ($field['name'] == 'qualtricsSurvey') {
+    private function returnSelectQualtricsField($args, $disabled){
+        $field = $this->get_param_by_name($args, 'field');
+        $res = $this->execute_private_method($args);                
+        if ($field['name'] == 'qualtricsSurvey') {            
+            $field_name_prefix = "fields[" . $field['name'] . "][" . $field['id_language'] . "]" . "[" . $field['id_gender'] . "]";
             $selectField = $this->outputSelectQualtricsField($field['content'], $field_name_prefix . "[content]", $disabled);
             if ($selectField && $res) {
                 $children = $res->get_view()->get_children();
@@ -83,34 +79,26 @@ class QualtricsHooks extends BaseHooks
 
     /**
      * Return a BaseStyleComponent object
-     * @param object hookedClassInstance
-     * The class which was hooked
-     * @param string $methodName
-     * The name of the method that we want to execute
      * @param object $args
      * Params passed to the method
      * @return object
      * Return a BaseStyleComponent object
      */
-    public function outputFieldQualtricsSurveyEdit($hookedClassInstance, $methodName, $args)
+    public function outputFieldQualtricsSurveyEdit($args)
     {
-        return $this->returnSelectQualtricsField($hookedClassInstance, $methodName, $args, 0);
+        return $this->returnSelectQualtricsField($args, 0);
     }
 
     /**
      * Return a BaseStyleComponent object
-     * @param object hookedClassInstance
-     * The class which was hooked
-     * @param string $methodName
-     * The name of the method that we want to execute
      * @param object $args
      * Params passed to the method
      * @return object
      * Return a BaseStyleComponent object
      */
-    public function outputFieldQualtricsSurveyView($hookedClassInstance, $methodName, $args)
+    public function outputFieldQualtricsSurveyView($args)
     {
-        return $this->returnSelectQualtricsField($hookedClassInstance, $methodName, $args, 1);
+        return $this->returnSelectQualtricsField($args, 1);
     }
 
     /**
@@ -118,10 +106,24 @@ class QualtricsHooks extends BaseHooks
      * @return string
      * Return csp_rules
      */
-    public function setCspRules($hookedClassInstance, $methodName)
+    public function setCspRules($args)
     {
-        $res = $this->execute_private_method($hookedClassInstance, $methodName);
-        return $res . 'frame-src https://eu.qualtrics.com/;';
+        $res = $this->execute_private_method($args);
+        $resArr = explode(';', $res);
+        $frameRuleExists = false;
+        foreach ($resArr as $key => $value) {
+            if (strpos($value, 'frame-src') !== false) {
+                str_replace($value, ';', '');
+                $resArr[$key] = $value . ' https://eu.qualtrics.com/;';
+                $frameRuleExists = true;
+                break;
+            }
+        }
+        if ($frameRuleExists) {
+            return implode(";", $resArr);
+        } else {
+            return $res . 'frame-src https://eu.qualtrics.com/;';
+        }
     }
 }
 ?>
