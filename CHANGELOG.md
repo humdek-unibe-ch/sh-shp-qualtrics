@@ -1,3 +1,7 @@
+# v1.0.2
+### Bugfix
+ - fix action type codes
+
 # v1.0.1
 
 ### New Features

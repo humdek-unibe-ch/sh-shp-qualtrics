@@ -111,7 +111,7 @@ class QualtricsSurveyModel extends StyleModel
         $res = $this->db->query_db_first($sql, array(
             ':id_users' => $_SESSION['id_user'],
             ':id_surveys' => $this->survey_id,
-            ':id_qualtricsProjectActionTriggerTypes' => $this->db->get_lookup_id_by_value(qualtricsProjectActionTriggerTypes, qualtricsProjectActionTriggerTypes_finished)
+            ':id_qualtricsProjectActionTriggerTypes' => $this->db->get_lookup_id_by_value(actionTriggerTypes, actionTriggerTypes_finished)
         ));
         return $res;
     }
@@ -130,7 +130,7 @@ class QualtricsSurveyModel extends StyleModel
         $res = $this->db->query_db_first($sql, array(
             ':id_users' => $_SESSION['id_user'],
             ':id_surveys' => $this->survey_id,
-            ':id_qualtricsProjectActionTriggerTypes' => $this->db->get_lookup_id_by_value(qualtricsProjectActionTriggerTypes, qualtricsProjectActionTriggerTypes_finished),
+            ':id_qualtricsProjectActionTriggerTypes' => $this->db->get_lookup_id_by_value(actionTriggerTypes, actionTriggerTypes_finished),
             ':start_time' => $this->start_time_calced,
             ':end_time' => $this->end_time_calced
         ));
