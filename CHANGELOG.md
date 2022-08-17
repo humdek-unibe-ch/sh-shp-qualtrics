@@ -1,3 +1,7 @@
+# v1.0.3
+### New Features
+ - add an option to attach files when schedule a mail action
+
 # v1.0.2
 ### Bugfix
  - fix action type codes

@@ -309,6 +309,15 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "value" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : '',
                     "css" => "mb-3",
                     "placeholder" => "@user_name can be used for showing the user",
+                )),  
+                new BaseStyleComponent("textarea", array(
+                    "label" => "Attachments",
+                    "type_input" => "json",
+                    "name" => "schedule_info[attachments]",
+                    "id" => "attachments",
+                    "value" => isset($this->action["schedule_info"]['attachments']) ? $this->action["schedule_info"]['attachments'] : '',
+                    "css" => "mb-3",
+                    "placeholder" => "Add attachment files from assets in array",
                 )),         
                 new BaseStyleComponent("ActionConfigBuilder", array(
                     "label" => "Config",
@@ -515,6 +524,14 @@ class ModuleQualtricsProjectActionView extends ModuleQualtricsProjectView
                     "id" => "body",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => isset($this->action["schedule_info"]['body']) ? $this->action["schedule_info"]['body'] : ''
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Attachments",
+                    "locale" => "",
+                    "id" => "attachments",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => isset($this->action["schedule_info"]['attachments']) ? $this->action["schedule_info"]['attachments'] : ''
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(

@@ -573,6 +573,17 @@ class CallbackQualtrics extends BaseCallback
                 }
             }
         }
+        $mail_attachments_from_config = array();
+        if(isset($schedule_info['attachments']) && $schedule_info['attachments']){
+            $mail_attachments_from_config = json_decode($schedule_info['attachments'], true);
+        }
+        foreach ($mail_attachments_from_config as $idx => $attachment) {
+            $attachments[] = array(
+                "attachment_name" => $attachment,
+                "attachment_path" => ASSET_SERVER_PATH . "/" . $attachment,
+                "attachment_url" => ASSET_PATH . "/" . $attachment
+            );
+        }
         // *************************************** END CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
         $user_info = $this->db->select_by_uid('view_user_codes', $user_id);
         $body = str_replace('@user_name', $user_info['name'], $schedule_info['body']);
