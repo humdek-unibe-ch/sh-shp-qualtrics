@@ -1,6 +1,7 @@
 # v1.0.3
 ### New Features
  - add an option to attach files when schedule a mail action
+ - for `qualtricsProject` list on right click open edit or view action in a new tab
 
 # v1.0.2
 ### Bugfix

@@ -18,23 +18,114 @@ $(document).ready(function () {
     }
 
     //datatable projects
-    var table = $('#qualtrics-projects').DataTable({
+    var tableProjects = $('#qualtrics-projects').DataTable({
         "order": [[0, "asc"]]
     });
-    table.on('click', 'tr[id|="project-url"]', function (e) {
-        var ids = $(this).attr('id').split('-');
-        document.location = 'project/select/' + parseInt(ids[2]);
-    });
+
+    var actionOptions = {
+        iconPrefix: 'fas fa-fw',
+        classes: [],
+        contextMenu: {
+            enabled: true,
+            isMulti: false,
+            xoffset: -10,
+            yoffset: -10,
+            headerRenderer: function (rows) {
+                if (rows.length > 1) {
+                    // For when we have contextMenu.isMulti enabled and have more than 1 row selected
+                    return rows.length + ' projects selected';
+                } else if (rows.length > 0) {
+                    let row = rows[0];
+                    return 'Project ' + row[0] + ' selected';
+                }
+            },
+        },
+        showConfirmationMethod: (confirmation) => {
+            $.confirm({
+                title: confirmation.title,
+                content: confirmation.content,
+                buttons: {
+                    confirm: function () {
+                        return confirmation.callback(true);
+                    },
+                    cancel: function () {
+                        return confirmation.callback(false);
+                    }
+                }
+            });
+        },
+        buttonList: {
+            enabled: true,
+            iconOnly: false,
+            containerSelector: '#my-button-container',
+            groupClass: 'btn-group',
+            disabledOpacity: 0.4,
+            dividerSpacing: 10,
+        },
+        deselectAfterAction: true,
+        items: [
+            // Empty starter seperator to demonstrate that it won't render
+            {
+                type: 'divider',
+            },
+
+            {
+                type: 'option',
+                multi: false,
+                title: 'View',
+                iconClass: 'fa-eye',
+                buttonClasses: ['btn', 'btn-outline-secondary'],
+                contextMenuClasses: ['text-secondary'],
+                action: function (row) {
+                    console.log(row);
+                    var ids = row[0].DT_RowId.split('-');                    
+                    window.open('project/select/' + parseInt(ids[2]), '_blank')
+                },
+                isDisabled: function (row) {
+                },
+            },
+
+            {
+                type: 'divider',
+            },
+
+            {
+                type: 'option',
+                multi: false,
+                title: 'Edit',
+                iconClass: 'fa-edit',
+                buttonClasses: ['btn', 'btn-outline-secondary'],
+                contextMenuClasses: ['text-secondary'],
+                action: function (row) {
+                    console.log(row);
+                    var ids = row[0].DT_RowId.split('-');
+                    window.open('project/update/' + parseInt(ids[2]), '_blank')
+                },
+                isDisabled: function (row) {
+                },
+            },
+
+            
+
+            // Empty ending seperator to demonstrate that it won't render
+            {
+                type: 'divider',
+            },
+        ],
+    };
+
+    tableProjects.contextualActions(actionOptions);
+
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
 
     //datatable actions
-    var table = $('#qualtrics-project-actions').DataTable({
+    var tableActions = $('#qualtrics-project-actions').DataTable({
         "order": [[1, "asc"]],
         "scrollX": true
     });
-    table.on('click', 'tr[id|="action-url"]', function (e) {
+    tableActions.on('click', 'tr[id|="action-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
         if (document.location.href.includes('sync')) {
             var loc = document.location.href.split('sync').pop().split('/');
