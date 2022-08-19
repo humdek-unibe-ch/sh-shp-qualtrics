@@ -125,15 +125,7 @@ $(document).ready(function () {
         "order": [[1, "asc"]],
         "scrollX": true
     });
-    tableActions.on('click', 'tr[id|="action-url"]', function (e) {
-        var ids = $(this).attr('id').split('-');
-        if (document.location.href.includes('sync')) {
-            var loc = document.location.href.split('sync').pop().split('/');
-            document.location = (loc.length == 2 ? '../action/' : '../../action/') + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
-        } else {
-            document.location = '../../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
-        }
-    });
+
     var actionOptionsActions = {
         iconPrefix: 'fas fa-fw',
         classes: [],
