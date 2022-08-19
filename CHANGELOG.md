@@ -4,6 +4,7 @@
  - for `qualtricsProject` list on right click open edit or view action in a new tab
  - for `qualtricsActions` list on right click open edit or view action in a new tab
  - for `qualtricsSurveys` list on right click open edit or view action in a new tab
+ - add `searchBuilder` for `qualtricsActions`;
 
 # v1.0.2
 ### Bugfix

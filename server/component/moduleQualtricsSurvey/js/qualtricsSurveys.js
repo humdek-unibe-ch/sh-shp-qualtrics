@@ -2,6 +2,10 @@ $(document).ready(function () {
     var table = $('#qualtrics-surveys').DataTable({
         "order": [[0, "asc"]]
     });
+    table.on('click', 'tr[id|="survey-url"]', function (e) {
+        var ids = $(this).attr('id').split('-');
+        document.location = 'survey/select/' + parseInt(ids[2]);
+    });
 
     var actionOptions = {
         iconPrefix: 'fas fa-fw',
@@ -58,7 +62,6 @@ $(document).ready(function () {
                 buttonClasses: ['btn', 'btn-outline-secondary'],
                 contextMenuClasses: ['text-secondary'],
                 action: function (row) {
-                    console.log(row);
                     var ids = row[0].DT_RowId.split('-');                    
                     window.open('survey/select/' + parseInt(ids[2]), '_blank')
                 },
@@ -78,7 +81,6 @@ $(document).ready(function () {
                 buttonClasses: ['btn', 'btn-outline-secondary'],
                 contextMenuClasses: ['text-secondary'],
                 action: function (row) {
-                    console.log(row);
                     var ids = row[0].DT_RowId.split('-');
                     window.open('survey/update/' + parseInt(ids[2]), '_blank')
                 },

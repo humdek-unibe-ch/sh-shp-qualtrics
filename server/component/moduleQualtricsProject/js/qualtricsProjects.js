@@ -22,6 +22,11 @@ $(document).ready(function () {
         "order": [[0, "asc"]]
     });
 
+    tableProjects.on('click', 'tr[id|="project-url"]', function (e) {
+        var ids = $(this).attr('id').split('-');
+        document.location = 'project/select/' + parseInt(ids[2]);
+    });
+
     var actionOptionsProjects = {
         iconPrefix: 'fas fa-fw',
         classes: [],
@@ -77,7 +82,6 @@ $(document).ready(function () {
                 buttonClasses: ['btn', 'btn-outline-secondary'],
                 contextMenuClasses: ['text-secondary'],
                 action: function (row) {
-                    console.log(row);
                     var ids = row[0].DT_RowId.split('-');                    
                     window.open('project/select/' + parseInt(ids[2]), '_blank')
                 },
@@ -97,7 +101,6 @@ $(document).ready(function () {
                 buttonClasses: ['btn', 'btn-outline-secondary'],
                 contextMenuClasses: ['text-secondary'],
                 action: function (row) {
-                    console.log(row);
                     var ids = row[0].DT_RowId.split('-');
                     window.open('project/update/' + parseInt(ids[2]), '_blank')
                 },
@@ -123,9 +126,26 @@ $(document).ready(function () {
     //datatable actions
     var tableActions = $('#qualtrics-project-actions').DataTable({
         "order": [[1, "asc"]],
-        "scrollX": true
+        "scrollX": true,
+        buttons:[
+            {
+                extend: 'searchBuilder',
+                config: {
+                    depthLimit: 2
+                }
+            }
+        ],
+        dom: 'Bfrtip',
+    });    
+    tableActions.on('click', 'tr[id|="action-url"]', function (e) {
+        var ids = $(this).attr('id').split('-');
+        if (document.location.href.includes('sync')) {
+            var loc = document.location.href.split('sync').pop().split('/');
+            document.location = (loc.length == 2 ? '../action/' : '../../action/') + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+        } else {
+            document.location = '../../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+        }
     });
-
     var actionOptionsActions = {
         iconPrefix: 'fas fa-fw',
         classes: [],
