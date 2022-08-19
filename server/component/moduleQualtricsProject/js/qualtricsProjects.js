@@ -13,7 +13,7 @@ $.extend(
 
 $(document).ready(function () {
     if (window.history.replaceState) {
-        //prevent resned of the post ************ IMPORTANT *****************************
+        //prevent resend of the post ************ IMPORTANT *****************************
         window.history.replaceState(null, null, window.location.href);
     }
 
@@ -22,7 +22,7 @@ $(document).ready(function () {
         "order": [[0, "asc"]]
     });
 
-    var actionOptions = {
+    var actionOptionsProjects = {
         iconPrefix: 'fas fa-fw',
         classes: [],
         contextMenu: {
@@ -62,9 +62,9 @@ $(document).ready(function () {
             disabledOpacity: 0.4,
             dividerSpacing: 10,
         },
-        deselectAfterAction: true,
+        deselectAfterAction: false,
         items: [
-            // Empty starter seperator to demonstrate that it won't render
+            // Empty starter separator to demonstrate that it won't render
             {
                 type: 'divider',
             },
@@ -107,14 +107,14 @@ $(document).ready(function () {
 
             
 
-            // Empty ending seperator to demonstrate that it won't render
+            // Empty ending separator to demonstrate that it won't render
             {
                 type: 'divider',
             },
         ],
     };
 
-    tableProjects.contextualActions(actionOptions);
+    tableProjects.contextualActions(actionOptionsProjects);
 
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });
@@ -134,6 +134,111 @@ $(document).ready(function () {
             document.location = '../../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
         }
     });
+    var actionOptionsActions = {
+        iconPrefix: 'fas fa-fw',
+        classes: [],
+        contextMenu: {
+            enabled: true,
+            isMulti: false,
+            xoffset: -10,
+            yoffset: -10,
+            headerRenderer: function (rows) {
+                if (rows.length > 1) {
+                    // For when we have contextMenu.isMulti enabled and have more than 1 row selected
+                    return rows.length + ' actions selected';
+                } else if (rows.length > 0) {
+                    let row = rows[0];
+                    return 'Action ' + row[0] + ' selected';
+                }
+            },
+        },
+        showConfirmationMethod: (confirmation) => {
+            $.confirm({
+                title: confirmation.title,
+                content: confirmation.content,
+                buttons: {
+                    confirm: function () {
+                        return confirmation.callback(true);
+                    },
+                    cancel: function () {
+                        return confirmation.callback(false);
+                    }
+                }
+            });
+        },
+        buttonList: {
+            enabled: true,
+            iconOnly: false,
+            containerSelector: '#my-button-container',
+            groupClass: 'btn-group',
+            disabledOpacity: 0.4,
+            dividerSpacing: 10,
+        },
+        deselectAfterAction: false,
+        items: [
+            // Empty starter separator to demonstrate that it won't render
+            {
+                type: 'divider',
+            },
+
+            {
+                type: 'option',
+                multi: false,
+                title: 'View',
+                iconClass: 'fa-eye',
+                buttonClasses: ['btn', 'btn-outline-secondary'],
+                contextMenuClasses: ['text-secondary'],
+                action: function (row) {
+                    var ids = row[0].DT_RowId.split('-');       
+                    var url = '';
+                    if (document.location.href.includes('sync')) {
+                        var loc = document.location.href.split('sync').pop().split('/');
+                        url = (loc.length == 2 ? '../action/' : '../../action/') + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+                    } else {
+                        url = '../../action/' + parseInt(ids[2]) + '/select/' + parseInt(ids[3]);
+                    }             
+                    window.open(url, '_blank')
+                },
+                isDisabled: function (row) {
+                },
+            },
+
+            {
+                type: 'divider',
+            },
+
+            {
+                type: 'option',
+                multi: false,
+                title: 'Edit',
+                iconClass: 'fa-edit',
+                buttonClasses: ['btn', 'btn-outline-secondary'],
+                contextMenuClasses: ['text-secondary'],
+                action: function (row) {
+                    var ids = row[0].DT_RowId.split('-');       
+                    var url = '';
+                    if (document.location.href.includes('sync')) {
+                        var loc = document.location.href.split('sync').pop().split('/');
+                        url = (loc.length == 2 ? '../action/' : '../../action/') + parseInt(ids[2]) + '/update/' + parseInt(ids[3]);
+                    } else {
+                        url = '../../action/' + parseInt(ids[2]) + '/update/' + parseInt(ids[3]);
+                    }             
+                    window.open(url, '_blank')
+                },
+                isDisabled: function (row) {
+                },
+            },
+
+            
+
+            // Empty ending separator to demonstrate that it won't render
+            {
+                type: 'divider',
+            },
+        ],
+    };
+
+    tableActions.contextualActions(actionOptionsActions);
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
