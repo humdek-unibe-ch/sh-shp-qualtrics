@@ -1,3 +1,6 @@
+# v1.0.4
+ - replace PHP stats library with [math-php](https://github.com/markrogoyski/math-php) in preparation for PHP 8 migration
+
 # v1.0.3
 ### New Features
  - add an option to attach files when schedule a mail action

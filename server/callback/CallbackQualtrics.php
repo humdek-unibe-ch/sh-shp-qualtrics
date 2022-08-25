@@ -11,8 +11,10 @@ require_once __DIR__ . "/../../../../component/style/register/RegisterModel.php"
 require_once __DIR__ . "/../service/ext/php-pdftk-0.8.1.0/vendor/autoload.php";
 require_once __DIR__ . "/calculations/BMZSportModel.php";
 require_once __DIR__ . "/calculations/SaveDataModel.php";
+require_once __DIR__ . "/../ext/php-math/vendor/autoload.php";
 
 use mikehaertl\pdftk\Pdf;
+use MathPHP\Probability\Distribution\Continuous;
 
 /**
  * A small class that handles callbak and set the group number for validation code
@@ -996,7 +998,11 @@ class CallbackQualtrics extends BaseCallback
         foreach ($strengths as $key => $value) {
             if (isset($survey_response['values'][$key])) {
                 //sudo apt install php-dev; pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
-                $strengths[$key]["value"] = round(stats_cdf_normal($survey_response['values'][$key], $value["coefficient_1"], $value["coefficient_2"], 1) * 100);
+                $x = $survey_response['values'][$key];
+                $mu = $value["coefficient_1"];
+                $sigma = $value["coefficient_2"];
+                $normal = new Continuous\Normal($mu, $sigma);
+                $strengths[$key]["value"] = round($normal->cdf($x) * 100);
             }
         }
         array_multisort(array_column($strengths, 'value'), SORT_DESC, $strengths);
