@@ -1,3 +1,6 @@
+# v1.0.5 Not published
+ - adjust create action for PHP8.1
+
 # v1.0.4
  - replace PHP stats library with [math-php](https://github.com/markrogoyski/math-php) in preparation for PHP 8 migration
 
