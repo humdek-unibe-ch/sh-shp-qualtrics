@@ -411,7 +411,7 @@ class ModuleQualtricsProjectModel extends BaseModel
         $fireAndFroget = true;
         $callbackResultStructure = array();
         if (
-            strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
+            $survey['functions_code'] && strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
             $survey['trigger_type_code'] === actionTriggerTypes_finished
         ) {
             $fireAndFroget = true;
@@ -467,7 +467,7 @@ class ModuleQualtricsProjectModel extends BaseModel
         $fireAndFroget = true;
         $callbackResultStructure = array();
         if (
-            strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
+            $survey['functions_code'] && strpos($survey['functions_code'], qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive) !== false &&
             $survey['trigger_type_code'] === actionTriggerTypes_started
         ) {
             // if bmz funcion is needed we wait for the result
