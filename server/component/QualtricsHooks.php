@@ -125,5 +125,25 @@ class QualtricsHooks extends BaseHooks
             return $res . 'frame-src https://eu.qualtrics.com/;';
         }
     }
+
+    /**
+     * Clean Qualtrics responses
+     *
+     * @param object $args
+     * Params passed to the method
+     * @return bool
+     *  True on success, false on failure.
+     */
+    public function clear_qualtrics_responses($args)
+    {
+        $res = $this->execute_private_method($args);
+        if(!$res){
+            // something went wrong with the base clear function or no permissions for the operation
+            return;
+        }
+        $uid = $this->get_param_by_name($args, 'uid');
+        $res = $this->db->remove_by_fk('qualtricsSurveysResponses', 'id_users', $uid);
+        return $res;
+    }
 }
 ?>

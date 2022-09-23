@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../../../../component/BaseComponent.php";
 require_once __DIR__ . "/../../../../callback/BaseCallback.php";
 require_once __DIR__ . "/../component/moduleQualtricsProject/ModuleQualtricsProjectModel.php";
 require_once __DIR__ . "/../../../../component/style/register/RegisterModel.php";

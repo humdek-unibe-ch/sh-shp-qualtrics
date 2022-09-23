@@ -1,3 +1,6 @@
+# v1.1.0
+ -  on clear user data now it clear the user's Qualtrics responses
+
 # v1.0.5
  - adjust create action for PHP8.1
  - adjust `groups` for mysql 8

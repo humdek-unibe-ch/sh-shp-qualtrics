@@ -886,7 +886,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             sleep(1);
             $loops++;
             $result = $this->execute_curl($data);
-            $result = ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS) ? $result['result'] : false;
+            $result = ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS && isset($result['result'])) ? $result['result'] : false;
             if ($loops > 60) {
                 // we wait maximum 1 minute for the response
                 $result = false;
