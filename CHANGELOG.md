@@ -1,3 +1,7 @@
+# v1.1.1 (Not published yet)
+ ### Bugfix
+ - Fix `config` field not empty when create a new survey.
+
 # v1.1.0 (require Selfhelp v5.3.0)
  -  on clear user data now it clear the user's Qualtrics responses
 

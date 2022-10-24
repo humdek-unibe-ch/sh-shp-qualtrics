@@ -9,6 +9,9 @@ function initQualtricsSurveyConfigBuilder() {
         // load the monaco editor for json fields
         require.config({ paths: { vs: BASE_PATH + '/js/ext/vs' } });
         var json = $(this)[0];
+        if($(json).prev().val() == '    '){
+            $(json).prev().val('');
+        }
 
         require(['vs/editor/editor.main'], function () {
             var modelQualtrics = setQualtricsSurveyConfigSchema(monaco, json);
@@ -16,11 +19,11 @@ function initQualtricsSurveyConfigBuilder() {
                 value: $(json).prev().val(),
                 language: 'json',
                 automaticLayout: true,
-                renderLineHighlight: "none"
+                renderLineHighlight: "none",
             }
             if (modelQualtrics) {
                 editorOptions['model'] = modelQualtrics;
-            }
+            }            
             var editorQualtricsConfig = monaco.editor.create(json, editorOptions);
             editorQualtricsConfig.getAction('editor.action.formatDocument').run().then(() => {
                 calcMonacoEditorSize(editorQualtricsConfig, json);
