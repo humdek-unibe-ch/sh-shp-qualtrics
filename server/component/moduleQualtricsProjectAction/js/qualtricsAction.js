@@ -51,7 +51,7 @@ function adjustActionScheduleType() {
     $('.style-section-attachments').removeClass('d-none');
     $('.style-section-to').removeClass('d-none');
     $('.style-section-subject').removeClass('d-none');
-    $('.style-section-body').removeClass('d-none');    
+    $('.style-section-body').removeClass('d-none');
     $('.style-section-type').removeClass('d-none');
     $('#section-schedule_info').addClass('d-none');
     $('.style-section-id_qualtricsSurveys_reminder').addClass('d-none');
@@ -62,7 +62,7 @@ function adjustActionScheduleType() {
     if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Notification') ||
         $('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Task') ||
         $('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Reminder')) {
-        $('#section-schedule_info').removeClass('d-none');        
+        $('#section-schedule_info').removeClass('d-none');
     }
     if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Reminder')) {
         $('.style-section-id_qualtricsSurveys_reminder').removeClass('d-none');
@@ -78,9 +78,12 @@ function adjustActionScheduleType() {
         $('.style-section-attachments').addClass('d-none');
         $('.style-section-to').addClass('d-none');
         $('.style-section-subject').addClass('d-none');
-        $('.style-section-body').addClass('d-none');        
+        $('.style-section-body').addClass('d-none');
         $('.style-section-type').addClass('d-none');
         $('.style-section-targetGroups').removeClass('d-none');
+    }
+    if ($('select[name="id_qualtricsActionScheduleTypes"] option:selected').text().includes('Notification')) {
+        $('.style-section-valid').removeClass('d-none');
     }
     adjustRequiredFields();
 }
@@ -92,7 +95,7 @@ function adjustScheduleType() {
     $('.style-section-send_on').addClass('d-none');
     $('.style-section-send_on_day').addClass('d-none');
     $('.style-section-linked_action').addClass('d-none');
-    $('#at_time_holder').addClass('d-none');    
+    $('#at_time_holder').addClass('d-none');
     if ($('select[name="schedule_info[actionScheduleTypes]"] option:selected').text().includes('fixed datetime')) {
         $('#custom_time_holder').removeClass('d-none');
     } else if ($('select[name="schedule_info[actionScheduleTypes]"] option:selected').text().includes('time period on a weekday')) {
@@ -117,7 +120,7 @@ function adjustNotificationTypes() {
         $('.style-section-reply_to').addClass('d-none');
         $('.style-section-attachments').addClass('d-none');
         $('.style-section-url').removeClass('d-none');
-    } else if ($('select[name="schedule_info[notificationTypes]"] option:selected').text().includes('Email')){
+    } else if ($('select[name="schedule_info[notificationTypes]"] option:selected').text().includes('Email')) {
         $('.style-section-from_email').removeClass('d-none');
         $('.style-section-from_name').removeClass('d-none');
         $('.style-section-reply_to').removeClass('d-none');
@@ -128,7 +131,7 @@ function adjustNotificationTypes() {
 }
 
 $(document).ready(function () {
-    adjustScheduleType();    
+    adjustScheduleType();
     adjustActionScheduleType();
     adjustNotificationTypes();
     adjustRequiredFields();
