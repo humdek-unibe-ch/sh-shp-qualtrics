@@ -549,33 +549,35 @@ class CallbackQualtrics extends BaseCallback
         $mail = array();
         // *************************************** CHECK FOR ADDITIONAL FUNCTIONS THAT RETURN ATTACHMENTS *************************************************************
         $attachments = array();
-        $functions = explode(';', $action['functions_code']);
-        foreach ($functions as $key => $value) {
-            if ($value == qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) {
-                // WORKWELL evaluate strenghts function
-                $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
-                $func_res = $this->workwell_evaluate_strenghts($data, $user_id);
-                $result[] = $func_res['output'];
-                if ($func_res['attachment']) {
-                    $attachments[] = $func_res['attachment'];
-                }
-            } else if (
-                $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4 ||
-                $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_5 ||
-                $value == qualtricsProjectActionAdditionalFunction_workwell_eg_ap_4 ||
-                $value == qualtricsProjectActionAdditionalFunction_workwell_eg_ap_5
-            ) {
-                // Fill PDF with qualtrics embeded data
-                $result[] = $value;
-                $func_res = $this->fill_pdf_with_qualtrics_embeded_data($value, $data, $user_id);
-                $result[] = $func_res['output'];
-                if ($func_res['attachment']) {
-                    $attachments[] = $func_res['attachment'];
+        if ($action['functions_code']) {
+            $functions = explode(';', $action['functions_code']);
+            foreach ($functions as $key => $value) {
+                if ($value == qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) {
+                    // WORKWELL evaluate strenghts function
+                    $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
+                    $func_res = $this->workwell_evaluate_strenghts($data, $user_id);
+                    $result[] = $func_res['output'];
+                    if ($func_res['attachment']) {
+                        $attachments[] = $func_res['attachment'];
+                    }
+                } else if (
+                    $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_4 ||
+                    $value == qualtricsProjectActionAdditionalFunction_workwell_cg_ap_5 ||
+                    $value == qualtricsProjectActionAdditionalFunction_workwell_eg_ap_4 ||
+                    $value == qualtricsProjectActionAdditionalFunction_workwell_eg_ap_5
+                ) {
+                    // Fill PDF with qualtrics embeded data
+                    $result[] = $value;
+                    $func_res = $this->fill_pdf_with_qualtrics_embeded_data($value, $data, $user_id);
+                    $result[] = $func_res['output'];
+                    if ($func_res['attachment']) {
+                        $attachments[] = $func_res['attachment'];
+                    }
                 }
             }
         }
         $mail_attachments_from_config = array();
-        if(isset($schedule_info['attachments']) && $schedule_info['attachments']){
+        if (isset($schedule_info['attachments']) && $schedule_info['attachments']) {
             $mail_attachments_from_config = json_decode($schedule_info['attachments'], true);
         }
         foreach ($mail_attachments_from_config as $idx => $attachment) {
