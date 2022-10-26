@@ -1,4 +1,4 @@
-# v1.1.1 (Not published yet)
+# v1.1.1
  ### Bugfix
  - Fix `config` field not empty when create a new survey.
  - Show field `valid` for notifications. The filed is used for notifications that have reminders attached to them.
