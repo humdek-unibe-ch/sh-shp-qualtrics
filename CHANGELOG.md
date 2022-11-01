@@ -1,3 +1,7 @@
+# v1.2.0
+### Bugfix
+ - Fix delete reminders when survey is done for diary type reminders
+
 # v1.1.1
  ### Bugfix
  - Fix `config` field not empty when create a new survey.
