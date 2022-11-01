@@ -164,10 +164,12 @@ class CallbackQualtrics extends BaseCallback
      * Arra with reminders that should be deleted
      */
     private function delete_reminders($scheduled_reminders)
-    {
+    {   
+        $result = array();
         foreach ($scheduled_reminders as $reminder) {
-            $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_qualtrics_callback);
+            $result[] = $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_qualtrics_callback);
         }
+        return $result;
     }
 
     /**
@@ -1368,10 +1370,11 @@ class CallbackQualtrics extends BaseCallback
                     } else if ($data[ModuleQualtricsProjectModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_finished) {
                         //update survey response
                         $update_id = $this->update_survey_response($data);
-                        $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+                        $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE]);                        
+                        $result['selfhelpCallback']["delete_reminders"] = $scheduled_reminders;
                         $result['selfhelpCallback'][] = $this->save_data($user_id, $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsProjectModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
                         if ($scheduled_reminders && count($scheduled_reminders) > 0) {
-                            $this->delete_reminders($scheduled_reminders);
+                            $result['selfhelpCallback']["delete_reminders_result"] = $this->delete_reminders($scheduled_reminders);
                         }
                         if ($update_id > 0) {
                             //successfully updated survey repsonse
