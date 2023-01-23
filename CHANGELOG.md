@@ -2,6 +2,9 @@
 ### Bugfix
  - Fix new project error (php8)
 
+### New Features
+ - move `moduleQualtrics` to parent `modules`
+
 # v1.2.0
 ### Bugfix
  - Fix delete reminders when survey is done for diary type reminders
