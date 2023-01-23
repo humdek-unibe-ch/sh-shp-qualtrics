@@ -123,7 +123,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "label" => "Project name:",
                             "type_input" => "text",
                             "name" => "name",
-                            "value" => $this->project['name'],
+                            "value" => isset($this->project['name']) ? $this->project['name'] : '',
                             "is_required" => true,
                             "css" => "mb-3",
                             "placeholder" => "Enter project name",
@@ -132,7 +132,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "label" => "Project description:",
                             "type_input" => "text",
                             "name" => "description",
-                            "value" => $this->project['description'],
+                            "value" => isset($this->project['description']) ? $this->project['description'] : '',
                             "css" => "mb-3",
                             "placeholder" => "Enter project description",
                         )),
@@ -140,7 +140,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "label" => "Qualtrics API",
                             "type_input" => "text",
                             "name" => "qualtrics_api",
-                            "value" => $this->project['qualtrics_api'],
+                            "value" => isset($this->project['qualtrics_api']) ? $this->project['qualtrics_api'] : '',
                             "css" => "mb-3",
                             "placeholder" => "Enter Qualtrics API token",
                         )),
@@ -148,7 +148,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "label" => "API library ID:",
                             "type_input" => "text",
                             "name" => "api_library_id",
-                            "value" => $this->project['api_library_id'],
+                            "value" => isset($this->project['api_library_id']) ? $this->project['api_library_id'] : '',
                             "css" => "mb-3",
                             "placeholder" => "Enter API library id",
                         )),
@@ -156,10 +156,10 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                             "label" => "API mailing group:",
                             "type_input" => "text",
                             "name" => "api_mailing_group_id",
-                            "value" => $this->project['api_mailing_group_id'],
+                            "value" => isset($this->project['api_mailing_group_id']) ? $this->project['api_mailing_group_id'] : '',
                             "css" => "mb-3",
                             "placeholder" => "Enter API mailing group id",
-                        )),                        
+                        )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -183,7 +183,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     protected function output_entry_form_view()
     {
         $form = new BaseStyleComponent("card", array(
-            "css" => "mb-3",            
+            "css" => "mb-3",
             "is_expanded" => true,
             "is_collapsible" => false,
             "url_edit" => $this->model->get_link_url("moduleQualtricsProject", array("pid" => $this->pid, "mode" => UPDATE)),
@@ -239,8 +239,8 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
     {
         require __DIR__ . "/../moduleQualtrics/tpl_moduleQualtrics.php";
     }
-	
-	public function output_content_mobile()
+
+    public function output_content_mobile()
     {
         echo 'mobile';
     }

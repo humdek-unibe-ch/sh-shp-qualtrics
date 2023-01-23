@@ -1,3 +1,7 @@
+# v1.3.0 (Unpublished)
+### Bugfix
+ - Fix new project error (php8)
+
 # v1.2.0
 ### Bugfix
  - Fix delete reminders when survey is done for diary type reminders
