@@ -1,44 +1,3 @@
--- add plugin entry in the plugin table
-UPDATE `plugins`
-SET version = 'v1.3.0'
-WHERE `name` = 'qualtrics';
-
-SET @id_modules_page = (SELECT id FROM pages WHERE keyword = 'sh_modules');
-
-UPDATE pages
-SET parent = @id_modules_page, nav_position = 95
-WHERE keyword = 'moduleQualtrics';
-
--- set DB version
-UPDATE version
-SET version = 'v5.11.0';
-
-DELIMITER //
-DROP PROCEDURE IF EXISTS drop_table_column //
-CREATE PROCEDURE drop_table_column(param_table VARCHAR(100), param_column VARCHAR(100))
-BEGIN	
-    SET @sqlstmt = (SELECT IF(
-		(
-			SELECT COUNT(*) 
-			FROM information_schema.COLUMNS
-			WHERE `table_schema` = DATABASE()
-			AND `table_name` = param_table
-			AND `COLUMN_NAME` = param_column 
-		) = 0,
-        "SELECT 'Column does not exist'",
-        CONCAT('ALTER TABLE ', param_table, ' DROP COLUMN ', param_column, ' ;')
-    ));
-	PREPARE st FROM @sqlstmt;
-	EXECUTE st;
-	DEALLOCATE PREPARE st;	
-END
-
-//
-
-DELIMITER ;
-
-CALL drop_table_column('qualtricsProjects', 'qualtrics_api');
-
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
@@ -69,6 +28,3 @@ LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
 st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
-
-
-

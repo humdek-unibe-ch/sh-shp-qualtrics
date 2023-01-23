@@ -1,9 +1,10 @@
-# v1.3.0 (Unpublished)
+# v1.3.0 - Require Selfhelp 5.11.0+ (Unpublished)
 ### Bugfix
  - Fix new project error (php8)
 
 ### New Features
  - move `moduleQualtrics` to parent `modules`
+ - move `qualtrics_api` from project to user (it is personal, now)
 
 # v1.2.0
 ### Bugfix

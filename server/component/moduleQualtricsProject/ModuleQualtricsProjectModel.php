@@ -909,7 +909,6 @@ class ModuleQualtricsProjectModel extends BaseModel
         return $this->db->insert("qualtricsProjects", array(
             "name" => $data['name'],
             "description" => $data['description'],
-            "qualtrics_api" => $data['qualtrics_api'],
             "api_library_id" => $data['api_library_id'],
             "api_mailing_group_id" => $data['api_mailing_group_id']
         ));
@@ -930,7 +929,6 @@ class ModuleQualtricsProjectModel extends BaseModel
             array(
                 "name" => $data['name'],
                 "description" => $data['description'],
-                "qualtrics_api" => $data['qualtrics_api'],
                 "api_library_id" => $data['api_library_id'],
                 "api_mailing_group_id" => $data['api_mailing_group_id']
             ),
@@ -982,7 +980,7 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     public function get_actions_for_sync($pid)
     {
-        $sql = "SELECT distinct project_id, qualtrics_api, participant_variable, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
+        $sql = "SELECT distinct project_id, participant_variable, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
                 id_qualtricsSurveyTypes, group_variable, survey_type, survey_type_code, functions_code, trigger_type_code
                 FROM view_qualtricsActions
                 WHERE project_id = :pid";
@@ -999,7 +997,7 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     public function get_action_for_sync($pid, $aid)
     {
-        $sql = "SELECT distinct project_id, qualtrics_api, participant_variable, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
+        $sql = "SELECT distinct project_id, participant_variable, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
                 id_qualtricsSurveyTypes, group_variable, survey_type, survey_type_code, functions_code, trigger_type_code
                 FROM view_qualtricsActions
                 WHERE project_id = :pid AND id = :aid";
