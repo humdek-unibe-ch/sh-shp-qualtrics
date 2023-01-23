@@ -11,7 +11,6 @@
                 <th scope="col">Survey Name</th>
                 <th scope="col">Qualtrics Survey ID</th>
                 <th scope="col">Survey Type</th>
-                <th scope="col">Participant variabe</th>
                 <th scope="col">Group variabe</th>
                 <th scope="col">Survey Description</th>
             </tr>

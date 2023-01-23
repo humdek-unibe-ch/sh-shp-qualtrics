@@ -309,16 +309,16 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     /**
      * generate the  Authenticator flow adn return nested array
-     * @param string $participant_variable
+     * @param string $flow_id
      * @retval array
      */
-    private function get_authenticator($participant_variable, $flow_id = ModuleQualtricsProjectModel::FLOW_ID_AUTHENTICATOR, $max_attempts = 100)
+    private function get_authenticator($flow_id = ModuleQualtricsProjectModel::FLOW_ID_AUTHENTICATOR, $max_attempts = 100)
     {
         $authenticator = json_decode(QulatricsAPITemplates::authenticator, true);
         $authenticator['FlowID'] = $flow_id;
         $authenticator['PanelData']['LibraryID'] = $this->project['api_library_id'];
         $authenticator['PanelData']['PanelID'] = $this->project['api_mailing_group_id'];
-        $authenticator['FieldData'][0][0]['embeddedDataField'] = $participant_variable;
+        $authenticator['FieldData'][0][0]['embeddedDataField'] = ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE;
         $authenticator['Options']['maxAttempts'] = $max_attempts;
         return $authenticator;
     }
@@ -327,17 +327,16 @@ class ModuleQualtricsProjectModel extends BaseModel
      * generate the web service flow adn return nested array
      * @param array $embedded_vars
      * @param string $flowId
-     * @param string $url
-     * @param string $participant_variable
+     * @param string $url     
      * @param bool $is_callback 
      * @param string $fireAndForget if true qulatrics do not wait for a repsonse from the callback otherwise it waits
      * @param array $callbackResultStructure the variale that the callback can return
      * @retval array
      */
-    private function get_webService_flow($embedded_vars, $flowId, $url, $participant_variable, $is_callback, $fireAndForget = true, $callbackResultStructure = array())
+    private function get_webService_flow($embedded_vars, $flowId, $url, $is_callback, $fireAndForget = true, $callbackResultStructure = array())
     {
         $body = array();
-        $body = array_merge(array("externalDataRef" => '${e://Field/' . $participant_variable . '}'));
+        $body = array_merge(array("externalDataRef" => '${e://Field/' . ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE . '}'));
         if ($is_callback) {
             //for callbacks different structure
             $body = $embedded_vars;
@@ -380,12 +379,10 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     private function get_webService_finish_flow($survey)
     {
-        if ($survey['participant_variable']) {
-            $editBodyParamsEnd[] = array(
-                "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-                "value" => '${e://Field/' . $survey['participant_variable'] . '}'
-            );
-        }
+        $editBodyParamsEnd[] = array(
+            "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
+            "value" => '${e://Field/' . ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE . '}'
+        );
         $editBodyParamsEnd[] = array(
             "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE,
             "value" => ModuleQualtricsProjectModel::QUALTRICS_EMBEDED_SURVEY_ID_VAR
@@ -420,7 +417,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             $editBodyParamsEnd,
             ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_END,
             $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
-            $survey['participant_variable'],
+            ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
             true,
             $fireAndFroget,
             $callbackResultStructure
@@ -436,12 +433,10 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     private function get_webService_start_flow($survey)
     {
-        if ($survey['participant_variable']) {
-            $editBodyParamsStart[] = array(
-                "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-                "value" => '${e://Field/' . $survey['participant_variable'] . '}'
-            );
-        }
+        $editBodyParamsStart[] = array(
+            "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
+            "value" => '${e://Field/' . ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE . '}'
+        );
         $editBodyParamsStart[] = array(
             "key" => ModuleQualtricsProjectModel::QUALTRICS_SURVEY_ID_VARIABLE,
             "value" => ModuleQualtricsProjectModel::QUALTRICS_EMBEDED_SURVEY_ID_VAR
@@ -477,7 +472,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             $editBodyParamsStart,
             ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_START,
             $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "add_survey_response")),
-            $survey['participant_variable'],
+            ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
             true,
             $fireAndFroget,
             $callbackResultStructure
@@ -486,10 +481,9 @@ class ModuleQualtricsProjectModel extends BaseModel
 
     private function get_webService_setGroup_flow($survey)
     {
-
         $editBodyParamsGroup[] = array(
             "key" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
-            "value" => '${e://Field/' . $survey['participant_variable'] . '}'
+            "value" => '${e://Field/' . ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE . '}'
         );
         $editBodyParamsGroup[] = array(
             "key" => ModuleQualtricsProjectModel::QUALTRICS_GROUP_VARIABLE,
@@ -503,7 +497,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             $editBodyParamsGroup,
             ModuleQualtricsProjectModel::FLOW_ID_WEB_SERVICE_GROUP,
             $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "set_group")),
-            $survey['participant_variable'],
+            ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
             true,
             false
         );
@@ -533,9 +527,9 @@ class ModuleQualtricsProjectModel extends BaseModel
             $baseline_embedded_flow = json_decode(QulatricsAPITemplates::embedded_data, true);
             $baseline_embedded_flow['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA;
             $baseline_embedded_flow['EmbeddedData'][] = array(
-                "Description" => $survey['participant_variable'],
+                "Description" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
                 "Type" => "Recipient",
-                "Field" => $survey['participant_variable'],
+                "Field" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
                 "VariableType" => "String",
                 "DataVisibility" => array(),
                 "AnalyzeText" => false
@@ -562,7 +556,7 @@ class ModuleQualtricsProjectModel extends BaseModel
             }
 
             /** AUTHENTICATOR is the user registered *************************************************************************************************************************************/
-            $baseline_authenticator = $this->get_authenticator($survey['participant_variable'], ModuleQualtricsProjectModel::FLOW_ID_AUTHENTICATOR_CONTACT, '1');
+            $baseline_authenticator = $this->get_authenticator(ModuleQualtricsProjectModel::FLOW_ID_AUTHENTICATOR_CONTACT, '1');
             $embeded_data_authenticator_contact = json_decode(QulatricsAPITemplates::embedded_data, true);
             $embeded_data_authenticator_contact['EmbeddedData'][] = array(
                 "Description" => 'user_registered',
@@ -580,7 +574,7 @@ class ModuleQualtricsProjectModel extends BaseModel
 
             $editBodyParams[] = array(
                 "key" => 'externalDataRef',
-                "value" => '${e://Field/' . $survey['participant_variable'] . '}'
+                "value" => '${e://Field/' . ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE . '}'
             );
 
             $baseline_webService_contacts = $this->get_webService_flow(
@@ -591,7 +585,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                     $survey['api_mailing_group_id'],
                     ModuleQualtricsProjectModel::QUALTRICS_API_CREATE_CONTACT
                 ),
-                $survey['participant_variable'],
+                ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
                 false,
                 false
             );
@@ -698,9 +692,9 @@ class ModuleQualtricsProjectModel extends BaseModel
             $followup_embedded_flow = json_decode(QulatricsAPITemplates::embedded_data, true);
             $followup_embedded_flow['FlowID'] = ModuleQualtricsProjectModel::FLOW_ID_EMBEDED_DATA;
             $followup_embedded_flow['EmbeddedData'][] = array(
-                "Description" => $survey['participant_variable'],
+                "Description" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
                 "Type" => "Recipient",
-                "Field" => $survey['participant_variable'],
+                "Field" => ModuleQualtricsProjectModel::QUALTRICS_PARTICIPANT_VARIABLE,
                 "VariableType" => "String",
                 "DataVisibility" => array(),
                 "AnalyzeText" => false
@@ -734,7 +728,7 @@ class ModuleQualtricsProjectModel extends BaseModel
                 $followup_webService_group = $this->get_webService_setGroup_flow($survey);
             }
 
-            $followup_authenticator = $this->get_authenticator($survey['participant_variable']);
+            $followup_authenticator = $this->get_authenticator();
             foreach ($surveyFlow['Flow'] as $key => $flow) {
                 if ($flow['FlowID'] === ModuleQualtricsProjectModel::FLOW_ID_AUTHENTICATOR) {
                     //already exist; overwirite
@@ -980,7 +974,7 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     public function get_actions_for_sync($pid)
     {
-        $sql = "SELECT distinct project_id, participant_variable, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
+        $sql = "SELECT distinct project_id, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
                 id_qualtricsSurveyTypes, group_variable, survey_type, survey_type_code, functions_code, trigger_type_code
                 FROM view_qualtricsActions
                 WHERE project_id = :pid";
@@ -997,7 +991,7 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
     public function get_action_for_sync($pid, $aid)
     {
-        $sql = "SELECT distinct project_id, participant_variable, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
+        $sql = "SELECT distinct project_id, api_mailing_group_id, survey_id, survey_name, qualtrics_survey_id,
                 id_qualtricsSurveyTypes, group_variable, survey_type, survey_type_code, functions_code, trigger_type_code
                 FROM view_qualtricsActions
                 WHERE project_id = :pid AND id = :aid";

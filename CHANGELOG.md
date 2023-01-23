@@ -5,6 +5,7 @@
 ### New Features
  - move `moduleQualtrics` to parent `modules`
  - move `qualtrics_api` from project to user (it is personal, now)
+ - remove `participant_variable` column from table `qualtricsSurveys`. The value is always `code` 
 
 # v1.2.0
 ### Bugfix

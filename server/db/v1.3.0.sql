@@ -38,11 +38,19 @@ END
 DELIMITER ;
 
 CALL drop_table_column('qualtricsProjects', 'qualtrics_api');
+CALL drop_table_column('qualtricsSurveys', 'participant_variable');
+
+DROP VIEW IF EXISTS view_qualtricsSurveys;
+CREATE VIEW view_qualtricsSurveys
+AS
+SELECT s.*, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code
+FROM qualtricsSurveys s 
+INNER JOIN lookups typ ON (typ.id = s.id_qualtricsSurveyTypes);
 
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS
-SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, s.participant_variable, p.api_mailing_group_id,
+SELECT st.id as id, st.name as action_name, st.id_qualtricsProjects as project_id, p.name as project_name, p.api_mailing_group_id,
 st.id_qualtricsSurveys as survey_id, s.qualtrics_survey_id, s.name as survey_name, s.id_qualtricsSurveyTypes, s.group_variable, typ.lookup_value as survey_type, typ.lookup_code as survey_type_code,
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value as trigger_type, trig.lookup_code as trigger_type_code,
 GROUP_CONCAT(DISTINCT g.name SEPARATOR '; ') AS `groups`, 
@@ -69,6 +77,4 @@ LEFT JOIN lookups l on (f.id_lookups = l.id)
 GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
 st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
-
-
 
