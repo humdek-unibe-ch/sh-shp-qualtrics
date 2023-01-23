@@ -56,7 +56,7 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
                 "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],
                 "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
                 "id_qualtricsActionScheduleTypes" => $data['id_qualtricsActionScheduleTypes'],
-                "id_qualtricsSurveys_reminder" => isset($data['id_qualtricsSurveys_reminder']) ? $data['id_qualtricsSurveys_reminder'] : null,
+                "id_qualtricsSurveys_reminder" => (isset($data['id_qualtricsSurveys_reminder']) && $data['id_qualtricsSurveys_reminder'] != '') ? $data['id_qualtricsSurveys_reminder'] : null,
                 "id_qualtricsActions" => isset($data['id_qualtricsActions']) ? $data['id_qualtricsActions'] : null,
                 "schedule_info" => isset($data['schedule_info']) ? json_encode($data['schedule_info'], true) : null
             ));
