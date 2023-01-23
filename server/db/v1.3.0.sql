@@ -78,3 +78,43 @@ GROUP BY st.id, st.name, st.id_qualtricsProjects, p.name,
 st.id_qualtricsSurveys, s.name, s.id_qualtricsSurveyTypes, typ.lookup_value, 
 id_qualtricsProjectActionTriggerTypes, trig.lookup_value;
 
+-- add Qualtrics API key to the profile page - make the key personal
+INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000012, 'profile-qualtrics-settings-card', NULL);
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0000000022, 0000000002, 0000000001, 'Qualtrics Vorlieben'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0000000022, 0000000003, 0000000001, 'Qualtrics Preferences'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0000000023, 0000000001, 0000000001, 'mb-3 mt-3'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0000000028, 0000000001, 0000000001, 'light'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0000000046, 0000000001, 0000000001, '1'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0000000047, 0000000001, 0000000001, '0'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0000000048, 0000000001, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0000000091, 0000000001, 0000000001, '{"and":[{"==":[true,"$admin"]}]}'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 00000000180, 0000000001, 0000000001, '{"condition":"AND","rules":[{"id":"user_group","field":"user_group","type":"string","input":"select","operator":"in","value":["admin"]}],"valid":true}');
+
+INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (get_style_id('formUserInputRecord'), 'profile-qualtrics-settings-formUserInputRecord', NULL);
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000008, 0000000002, 0000000001, 'Ändern'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000008, 0000000003, 0000000001, 'Change'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000023, 0000000001, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000028, 0000000001, 0000000001, 'primary'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000057, 0000000001, 0000000001, 'qualtrics-settings'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000087, 0000000001, 0000000001, '0'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000035, 0000000002, 0000000001, 'Die Einstellungen für Qualtrics wurden erfolgreich gespeichert'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000035, 0000000003, 0000000001, 'The Qualtrics settings were successfully saved');
+
+INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-qualtrics-settings-input', NULL);
+INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000008, 0000000002, 0000000001, 'Qualtrics API'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000008, 0000000003, 0000000001, 'Qualtrics API'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000023, 0000000001, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000054, 0000000001, 0000000001, 'text'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000055, 0000000002, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000055, 0000000003, 0000000001, ''),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000056, 0000000001, 0000000001, '0'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000057, 0000000001, 0000000001, 'qualtrics-api'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0000000058, 0000000001, 0000000001, '');
+
+INSERT IGNORE INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
+((SELECT id FROM sections WHERE name = "profile-col1-div"), (SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), 0),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-card'), (SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), (SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-input'), 0);
