@@ -93,13 +93,14 @@ INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `i
 
 INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (get_style_id('formUserInputRecord'), 'profile-qualtrics-settings-formUserInputRecord', NULL);
 INSERT IGNORE INTO `sections_fields_translation` (`id_sections`, `id_fields`, `id_languages`, `id_genders`, `content`) VALUES
-((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000008, 0000000002, 0000000001, 'Ändern'),
-((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000008, 0000000003, 0000000001, 'Change'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000008, 0000000002, 0000000001, 'Speichern'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000008, 0000000003, 0000000001, 'Save'),
 ((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000023, 0000000001, 0000000001, ''),
 ((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000028, 0000000001, 0000000001, 'primary'),
 ((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000057, 0000000001, 0000000001, 'qualtrics-settings'),
 ((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000087, 0000000001, 0000000001, '0'),
 ((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000035, 0000000002, 0000000001, 'Die Einstellungen für Qualtrics wurden erfolgreich gespeichert'),
+((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), get_field_id('internal'), 0000000001, 0000000001, '1'),
 ((SELECT id FROM sections WHERE `name` = 'profile-qualtrics-settings-formUserInputRecord'), 0000000035, 0000000003, 0000000001, 'The Qualtrics settings were successfully saved');
 
 INSERT IGNORE INTO `sections` (`id_styles`, `name`, `owner`) VALUES (0000000016, 'profile-qualtrics-settings-input', NULL);
