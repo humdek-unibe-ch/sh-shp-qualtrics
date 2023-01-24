@@ -7,6 +7,7 @@
     <td><?php echo $survey['id']; ?></td>
     <td><?php echo $survey['name']; ?></td>
     <td><?php echo $survey['qualtrics_survey_id']; ?></td>
+    <td><?php echo $survey['project_name']; ?></td>
     <td><?php echo $survey['survey_type']; ?></td>
     <td><?php echo $survey['group_variable']; ?></td>
     <td><?php echo $survey['description']; ?></td>

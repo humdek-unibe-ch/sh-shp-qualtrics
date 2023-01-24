@@ -6,6 +6,7 @@
  - move `moduleQualtrics` to parent `modules`
  - move `qualtrics_api` from project to user (it is personal, now)
  - remove `participant_variable` column from table `qualtricsSurveys`. The value is always `code` 
+ - move relation between project and surveys to be saved in the surveys table instead through the actions table
 
 # v1.2.0
 ### Bugfix

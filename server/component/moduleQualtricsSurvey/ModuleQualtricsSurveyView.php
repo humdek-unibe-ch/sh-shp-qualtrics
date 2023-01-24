@@ -60,9 +60,8 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
             "title" => "Delete Survey",
             "type" => "danger",
             "children" => array(
-                new BaseStyleComponent("plaintext", array(
-                    "text" => "You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the survey name.",
-                    "is_paragraph" => true,
+                new BaseStyleComponent("markdown", array(
+                    "text_md" => "You must be absolutely certain that this is what you want. This operation cannot be undone! Deleting the project it will <code>delete all surveys</code> related to this project. To verify, enter the survey name.",
                 )),
                 new BaseStyleComponent("form", array(
                     "id" => "delete-survey",
@@ -131,6 +130,13 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "value" => $this->survey ? $this->survey['qualtrics_survey_id'] : '',
                             "css" => "mb-3",
                             "placeholder" => "Enter qualtrics survey id",
+                        )),
+                        new BaseStyleComponent("select", array(
+                            "label" => "Project",
+                            "value" => $this->survey ? $this->survey['id_qualtricsProjects'] : '',
+                            "is_required" => true,
+                            "name" => "id_qualtricsProjects",
+                            "items" => $this->model->get_services()->get_db()->fetch_table_as_select_values('qualtricsProjects', 'id', array('name')),
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "Survey type",
@@ -205,6 +211,13 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                     "locale" => "",
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->survey['qualtrics_survey_id']
+                    ))),
+                )),
+                new BaseStyleComponent("descriptionItem", array(
+                    "title" => "Project",
+                    "locale" => "",
+                    "children" => array(new BaseStyleComponent("rawText", array(
+                        "text" => $this->survey['project_name']
                     ))),
                 )),
                 new BaseStyleComponent("descriptionItem", array(
