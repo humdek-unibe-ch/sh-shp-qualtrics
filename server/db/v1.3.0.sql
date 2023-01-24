@@ -57,7 +57,8 @@ INSERT IGNORE INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 CALL add_table_column('qualtricsSurveys', 'id_qualtricsProjects', 'INT(10) UNSIGNED ZEROFILL NOT NULL');
 
 UPDATE qualtricsSurveys
-SET id_qualtricsProjects = (SELECT project_id FROM view_qualtricsActions WHERE survey_id = qualtricsSurveys.id LIMIT 0, 1);
+SET id_qualtricsProjects = (SELECT project_id FROM view_qualtricsActions WHERE survey_id = qualtricsSurveys.id LIMIT 0, 1)
+WHERE id_qualtricsProjects = NULL;
 
 CALL add_foreign_key('qualtricsSurveys', 'qualtricsSurveys_fk_id_qualtricsProjects', 'id_qualtricsProjects', 'qualtricsProjects (id)');
 
@@ -65,8 +66,9 @@ UPDATE pages
 SET url = '/admin/qualtrics/sync/[i:sid]?'
 WHERE keyword = 'moduleQualtricsSync';
 
-
-
+UPDATE styles_fields
+SET hidden = 1
+WHERE id_fields = get_field_id('jquery_builder_json') AND id_styles = get_style_id('qualtricsSurvey');
 
 
 

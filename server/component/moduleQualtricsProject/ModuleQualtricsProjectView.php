@@ -275,17 +275,6 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             ));
             $buttonAddAction->output_content();
         }
-        if ($this->project && $this->mode === SELECT && $this->actions) {
-            // show sync qualtrics surveys
-            $buttonAddAction = new BaseStyleComponent("button", array(
-                "id" => "syncQualtricsSurveys",
-                "label" => "Sync Qualtrics Surveys",
-                "url" => $this->model->get_link_url("moduleQualtricsSync", array("pid" => $this->pid)),
-                "type" => "secondary",
-                "css" => "d-block mb-3",
-            ));
-            $buttonAddAction->output_content();
-        }
     }
 
     /**

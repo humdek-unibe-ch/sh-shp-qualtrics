@@ -5,6 +5,8 @@
 ?>
 <?php
 require_once __DIR__ . "/../../../../../../component/style/StyleModel.php";
+require_once __DIR__ . "/../../moduleQualtricsSurvey/ModuleQualtricsSurveyModel.php";
+
 /**
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
@@ -72,7 +74,6 @@ class QualtricsSurveyModel extends StyleModel
         $this->survey_id = $this->get_db_field("qualtricsSurvey");
         $this->once_per_schedule = $this->get_db_field('once_per_schedule', 0);
         $this->once_per_user = $this->get_db_field('once_per_user', 0);
-        $this->use_as_container = $this->get_db_field('use_as_container', 0);
         $this->start_time = $this->get_db_field('start_time', '00:00');
         $this->end_time = $this->get_db_field('end_time', '00:00');
         $this->calc_times();
@@ -149,21 +150,19 @@ class QualtricsSurveyModel extends StyleModel
     {        
         $url_components = parse_url($this->router->get_url('#self')); // get the requested url
         $extra_qualtrics_params = isset($url_components['query'])? $url_components['query'] : ''; // check if the url contains url parameters (the same format as Qualtrics)
-        $survey_info = $this->db->query_db_first('SELECT qualtrics_survey_id, participant_variable FROM qualtricsSurveys WHERE id = :id', array(':id' => $this->survey_id));
+        $survey_info = $this->db->query_db_first('SELECT qualtrics_survey_id FROM qualtricsSurveys WHERE id = :id', array(':id' => $this->survey_id));
         $survey_link = '';
         if ($survey_info) {
             $survey_link =  'https://eu.qualtrics.com/jfe/form/' . $survey_info['qualtrics_survey_id'];
-            if (isset($survey_info['participant_variable']) && $survey_info['participant_variable'] != '') {
                 $user_code = $this->db->get_user_code();
                 if ($user_code) {
-                    $survey_link =  $survey_link . '?' . $survey_info['participant_variable'] . '=' . $user_code;
+                    $survey_link =  $survey_link . '?' . ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE_NAME . '=' . $user_code;
                     if($extra_qualtrics_params != ''){
                         $survey_link = $survey_link . '&' . $extra_qualtrics_params; // assign the extra parameters after the user_code variable
                     }
                 }else if($extra_qualtrics_params != ''){
                     $survey_link = $survey_link . '?' . $extra_qualtrics_params; // assign the extra parameters 
                 }
-            }
         }
         return $survey_link;
     }

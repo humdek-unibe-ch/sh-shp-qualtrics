@@ -42,6 +42,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
     const QUALTRICS_API_SUCCESS = '200 - OK';
 
     /* values */
+    const QUALTRICS_PARTICIPANT_VARIABLE_NAME = 'participant_variable';
     const QUALTRICS_PARTICIPANT_VARIABLE = 'code';
     const QUALTRICS_GROUP_VARIABLE = 'group';
     const QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE = 'ResponseID';
