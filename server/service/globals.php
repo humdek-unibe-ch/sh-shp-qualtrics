@@ -17,4 +17,6 @@
     define('qualtricsProjectActionAdditionalFunction_workwell_eg_ap_4', 'workwell_eg_ap_4');
     define('qualtricsProjectActionAdditionalFunction_workwell_eg_ap_5', 'workwell_eg_ap_5');
     define('qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive', 'bmz_evaluate_motive');
+    define('QUALTRICS_SETTINGS', 'qualtrics-settings');
+    define('QUALTRICS_API', 'qualtrics-api');
 ?>

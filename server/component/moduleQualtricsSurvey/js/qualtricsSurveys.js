@@ -1,3 +1,16 @@
+// jquery extend function for post submit
+$.extend(
+    {
+        redirectPost: function (location, args) {
+            var form = '';
+            $.each(args, function (key, value) {
+                value = value.split('"').join('\"')
+                form += '<input type="hidden" name="' + key + '" value="' + value + '">';
+            });
+            $('<form action="' + location + '" method="POST">' + form + '</form>').appendTo($(document.body)).submit();
+        }
+    });
+
 $(document).ready(function () {
     var table = $('#qualtrics-surveys').DataTable({
         "order": [[0, "asc"]]
@@ -62,7 +75,7 @@ $(document).ready(function () {
                 buttonClasses: ['btn', 'btn-outline-secondary'],
                 contextMenuClasses: ['text-secondary'],
                 action: function (row) {
-                    var ids = row[0].DT_RowId.split('-');                    
+                    var ids = row[0].DT_RowId.split('-');
                     window.open('survey/select/' + parseInt(ids[2]), '_blank')
                 },
                 isDisabled: function (row) {
@@ -88,7 +101,7 @@ $(document).ready(function () {
                 },
             },
 
-            
+
 
             // Empty ending seperator to demonstrate that it won't render
             {
@@ -102,4 +115,48 @@ $(document).ready(function () {
     $(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
+
+    //confirmation for Qualtrics sync on survey
+    var qualtricsSycnButton = $('.style-section-syncQualtricsSurvey').first();
+    var hrefSingleSurvey = $(qualtricsSycnButton).attr('href');
+    qualtricsSycnButton.click(function (e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Qualtrics Synchronization',
+            content: 'Are you sure that you want to synchronize this survey?',
+            buttons: {
+                confirm: function () {                    
+                    $(qualtricsSycnButton).attr('href', '#');
+                    event.stopPropagation();
+                    $.redirectPost(hrefSingleSurvey, { mode: 'select', type: 'qualtricsSync' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
+    });
+
+    //confirmation for Qualtrics sync for all surveys
+    var qualtricsSycnButton = $('.style-section-syncQualtricsSurveys').first();
+    qualtricsSycnButton.click(function (e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Qualtrics Synchronization',
+            content: 'Are you sure that you want to synchronize all surveys?',
+            buttons: {
+                confirm: function () {
+                    var href = $(qualtricsSycnButton).attr('href');
+                    $(qualtricsSycnButton).attr('href', '#');
+                    event.stopPropagation();  
+                    console.log(href);                  
+                    $.redirectPost(href, { mode: 'select', type: 'qualtricsSync' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
+    });
+
 });

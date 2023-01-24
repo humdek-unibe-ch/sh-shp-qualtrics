@@ -26,12 +26,10 @@ class ModuleQualtricsSyncComponent extends BaseComponent
      */
     public function __construct($services, $params)
     {
-        $pid = isset($params['pid']) ? intval($params['pid']) : null;
-        $aid = isset($params['aid']) ? intval($params['aid']) : null;
-        $mode = SELECT;
-        $model = new ModuleQualtricsProjectModel($services, $pid);
-        $controller = new ModuleQualtricsSyncController($model, $pid, $aid);
-        $view = new ModuleQualtricsProjectActionView($model, $controller, $pid, $mode, null);
+        $sid = isset($params['sid']) ? intval($params['sid']) : null;
+        $model = new ModuleQualtricsSurveyModel($services);
+        $controller = new ModuleQualtricsSyncController($model, $sid);
+        $view = new ModuleQualtricsSurveyView($model, $controller, $sid, null);
         parent::__construct($model, $view, $controller);
     }
 }

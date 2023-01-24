@@ -15,6 +15,9 @@
         $this->output_entry_form();
         echo $this->mode === INSERT ? '' : $this->output_delete_form();
     } else {
+        if ($this->sid > 0) {
+            $this->output_entry_form_view();
+        }
         echo "Missing entry!";
     }
     ?>

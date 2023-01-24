@@ -255,25 +255,4 @@ $(document).ready(function () {
         $('[data-toggle="popover"]').popover({ html: true });
     });
 
-    //confirmation for Qualtrics sync
-    var qualtricsSycnButton = $('.style-section-syncQualtricsSurveys').first();
-    qualtricsSycnButton.click(function (e) {
-        e.preventDefault();
-        $.confirm({
-            title: 'Qualtrics Synchronization',
-            content: 'Are you sure that you want to synchonize all surveys added to this project in your Qualtrics account?',
-            buttons: {
-                confirm: function () {
-                    var href = $(qualtricsSycnButton).attr('href');
-                    $(qualtricsSycnButton).attr('href', '#');
-                    event.stopPropagation();
-                    $.redirectPost(href, { mode: 'select', type: 'qualtricsSync' });
-                },
-                cancel: function () {
-
-                }
-            }
-        });
-    });
-
 });

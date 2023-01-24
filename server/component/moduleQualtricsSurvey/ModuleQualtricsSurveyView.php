@@ -265,8 +265,8 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
     {
         require __DIR__ . "/../moduleQualtrics/tpl_moduleQualtrics.php";
     }
-	
-	public function output_content_mobile()
+
+    public function output_content_mobile()
     {
         echo 'mobile';
     }
@@ -284,10 +284,10 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
      */
     public function output_page_content()
     {
-        if ($this->mode === null) {
-            require __DIR__ . "/tpl_qualtricsSurveys.php";
-        } else {
+        if ($this->sid) {
             require __DIR__ . "/tpl_qulatricsSurvey_entry.php";
+        } else {
+            require __DIR__ . "/tpl_qualtricsSurveys.php";            
         }
     }
 
@@ -303,6 +303,25 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
             "css" => "d-block mb-3",
         ));
         $button->output_content();
+        if ($this->sid) {
+            $syncSurvey = new BaseStyleComponent("button", array(
+                "id" => "syncQualtricsSurvey",
+                "label" => "Sync survey",
+                "url" => $this->model->get_link_url("moduleQualtricsSync", array("sid" => $this->sid)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $syncSurvey->output_content();
+        } else {
+            $syncSurveys = new BaseStyleComponent("button", array(
+                "id" => "syncQualtricsSurveys",
+                "label" => "Sync surveys",
+                "url" => $this->model->get_link_url("moduleQualtricsSync"),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $syncSurveys->output_content();
+        }
     }
 
     /**

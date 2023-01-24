@@ -84,8 +84,8 @@ class ModuleQualtricsSurveyController extends BaseController
      */
     private function insert_survey($data)
     {
-        $this->pid = $this->model->insert_new_survey($data);
-        if ($this->pid > 0) {
+        $pid = $this->model->insert_new_survey($data);
+        if ($pid > 0) {
             $this->success = true;
             $this->success_msgs[] = "Survey " . $data['name'] . " was successfully created";
         } else {
@@ -125,7 +125,7 @@ class ModuleQualtricsSurveyController extends BaseController
         if ($selectedSurvey['name'] === $data['deleteSurveyName']) {
             $res = $this->model->get_db()->remove_by_fk("qualtricsSurveys", "id", $selectedSurvey['id']);
             if ($res) {
-                $this->mode = "deleted";
+                $mode = "deleted";
                 $this->success = true;
                 $this->success_msgs[] = "Survey " . $selectedSurvey['name'] . " was successfully deleted";
             } else {

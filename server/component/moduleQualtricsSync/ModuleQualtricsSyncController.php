@@ -20,8 +20,10 @@ class ModuleQualtricsSyncController extends BaseController
      *
      * @param object $model 
      *  The model instance of the component.
+     * @param int $sid
+     * survey id
      */
-    public function __construct($model, $pid, $aid)
+    public function __construct($model, $sid)
     {
         parent::__construct($model);
         if (isset($_POST['mode']) && isset($_POST['type'])) {
@@ -30,10 +32,10 @@ class ModuleQualtricsSyncController extends BaseController
                 $this->error_msgs[] = "Cannot synchronize this project with Qualtrics. Permission denied.";
                 return;
             }
-            if ($aid) {
-                $this->syncProjectSurvey($pid, $aid);
+            if ($sid) {
+                $this->syncSurvey($sid);
             } else {
-                $this->syncProjectSurveys($pid);
+                $this->syncSurveys();
             }
         }
     }
@@ -55,16 +57,15 @@ class ModuleQualtricsSyncController extends BaseController
     }
 
     /**
-     * synchronize all surveys which belong to the project with  Qualtrics
-     * @param int $pid Project id
+     * synchronize all surveys  with  Qualtrics
      */
-    private function syncProjectSurveys($pid)
+    private function syncSurveys()
     {
-        foreach ($this->model->get_actions_for_sync($pid) as $action) {
-            $res = $this->model->syncSurvey($action);
+        foreach ($this->model->get_surveys() as $survey) {
+            $res = $this->model->syncSurvey($survey);
             if ($res['result']) {
                 $this->success = true;
-                $this->success_msgs[] = 'Survey ' . $action['survey_name'] . ': ' . $res['description'];
+                $this->success_msgs[] = 'Survey ' . $survey['name'] . ': ' . $res['description'];
             } else {
                 $this->fail = true;
                 $this->error_msgs[] = $res['description'];
@@ -73,21 +74,25 @@ class ModuleQualtricsSyncController extends BaseController
     }
 
     /**
-     * synchronize all surveys which belong to the project with  Qualtrics
-     * @param int $pid Project id
-     * @param int $aid Action id
+     * synchronize the selected survey with  Qualtrics
+     * @param int $sid
+     *  Survey id
      */
-    private function syncProjectSurvey($pid, $aid)
+    private function syncSurvey($sid)
     {
-        foreach ($this->model->get_action_for_sync($pid, $aid) as $action) {
-            $res = $this->model->syncSurvey($action);
-            if ($res['result']) {
-                $this->success = true;
-                $this->success_msgs[] = 'Survey ' . $action['survey_name'] . ': ' . $res['description'];
-            } else {
-                $this->fail = true;
-                $this->error_msgs[] = $res['description'];
-            }
+        $survey = $this->model->get_survey($sid);
+        if(!$survey){
+            $this->fail = true;
+            $this->error_msgs[] = 'No survey';
+            return;
+        }
+        $res = $this->model->syncSurvey($survey);
+        if ($res['result']) {
+            $this->success = true;
+            $this->success_msgs[] = 'Survey ' . $survey['name'] . ': ' . $res['description'];
+        } else {
+            $this->fail = true;
+            $this->error_msgs[] = $res['description'];
         }
     }
 
