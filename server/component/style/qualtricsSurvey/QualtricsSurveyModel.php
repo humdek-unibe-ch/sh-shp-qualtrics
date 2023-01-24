@@ -147,22 +147,26 @@ class QualtricsSurveyModel extends StyleModel
      * @retval string return the link which used in the iFrame
      */
     public function get_survey_link()
-    {        
+    {
         $url_components = parse_url($this->router->get_url('#self')); // get the requested url
-        $extra_qualtrics_params = isset($url_components['query'])? $url_components['query'] : ''; // check if the url contains url parameters (the same format as Qualtrics)
+        $extra_qualtrics_params = isset($url_components['query']) ? $url_components['query'] : ''; // check if the url contains url parameters (the same format as Qualtrics)
         $survey_info = $this->db->query_db_first('SELECT qualtrics_survey_id FROM qualtricsSurveys WHERE id = :id', array(':id' => $this->survey_id));
         $survey_link = '';
         if ($survey_info) {
             $survey_link =  'https://eu.qualtrics.com/jfe/form/' . $survey_info['qualtrics_survey_id'];
-                $user_code = $this->db->get_user_code();
-                if ($user_code) {
-                    $survey_link =  $survey_link . '?' . ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE_NAME . '=' . $user_code;
-                    if($extra_qualtrics_params != ''){
-                        $survey_link = $survey_link . '&' . $extra_qualtrics_params; // assign the extra parameters after the user_code variable
-                    }
-                }else if($extra_qualtrics_params != ''){
-                    $survey_link = $survey_link . '?' . $extra_qualtrics_params; // assign the extra parameters 
+            $user_code = $this->db->get_user_code();
+            if ($user_code) {
+                $survey_link =  $survey_link . '?' . ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE . '=' . $user_code;
+                if ($extra_qualtrics_params != '') {
+                    $survey_link = $survey_link . '&' . $extra_qualtrics_params; // assign the extra parameters after the user_code variable
                 }
+            } else if ($extra_qualtrics_params != '') {
+                $survey_link = $survey_link . '?' . $extra_qualtrics_params; // assign the extra parameters 
+            }
+        }
+        $extra_params = $this->get_db_field('extra_params', '');
+        if($extra_params != ''){
+            $survey_link = $survey_link . ( strpos($survey_link, '?') !== false ? '&' : '?') . $extra_params;
         }
         return $survey_link;
     }

@@ -8,6 +8,7 @@
  - remove `participant_variable` column from table `qualtricsSurveys`. The value is always `code` 
  - move the relation between project and surveys to be saved in the surveys table instead through the actions table
  - surveys now are synchronized at `surveys` not at `actions`
+ - add field `extra_params` to style `qualtricsSurveys`
 
 # v1.2.0
 ### Bugfix

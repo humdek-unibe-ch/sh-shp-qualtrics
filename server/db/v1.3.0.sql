@@ -70,7 +70,36 @@ UPDATE styles_fields
 SET hidden = 1
 WHERE id_fields = get_field_id('jquery_builder_json') AND id_styles = get_style_id('qualtricsSurvey');
 
+-- add field `extra-params`
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'extra_params', get_field_type_id('text'), '0');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('qualtricsSurvey'), get_field_id('extra_params'), '', 'Add extra paramters to the survey. The format is: `var1=value1&var2=value2`. The values can be dynamically loaded with `dataConfig`');
+INSERT IGNORE INTO `styles_fields` (`id_styles`, `id_fields`, `default_value`, `help`) 
+VALUES (get_style_id('qualtricsSurvey'), get_field_id('data_config'), '', 
+'In this ***JSON*** field we can configure a data retrieve params from the DB, either `static` or `dynamic` data. Example: 
+ ```
+ [
+	{
+		"type": "static|dynamic",
+		"table": "table_name | #url_param1",
+        "retrieve": "first | last | all",
+		"fields": [
+			{
+				"field_name": "name | #url_param2",
+				"field_holder": "@field_1",
+				"not_found_text": "my field was not found"				
+			}
+		]
+	}
+]
+```
+If the page supports parameters, then the parameter can be accessed with `#` and the name of the paramer. Example `#url_param_name`. 
 
+In order to inlcude the retrieved data in the input `value`, include the `field_holder` that wa defined in the markdown text.
+
+We can access multiple tables by adding another element to the array. The retrieve data from the column can be: `first` entry, `last` entry or `all` entries (concatenated with ;);
+
+`It is used for prefil of the default value`');
 
 DROP VIEW IF EXISTS view_qualtricsSurveys;
 CREATE VIEW view_qualtricsSurveys
