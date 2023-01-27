@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
-<tr class="cursor-pointer" id="action-url-<?php echo ($action['project_id'] . '-' . $action['id']); ?>">
+<tr class="cursor-pointer" id="action-url-<?php echo $action['id']; ?>">
     <td><?php echo $action['id']; ?></td>
     <td><?php echo $action['action_name']; ?></td>
     <td><?php echo $action['survey_type']; ?></td>    

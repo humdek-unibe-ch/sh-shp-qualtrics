@@ -5,7 +5,6 @@
 ?>
 <?php
 require_once __DIR__ . "/../../../../../component/BaseModel.php";
-require_once __DIR__ . "/qualtrics_api_templates.php";
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such
@@ -138,21 +137,7 @@ class ModuleQualtricsProjectModel extends BaseModel
     public function get_db()
     {
         return $this->db;
-    }
-
-    /**
-     * Get all the actions for the project
-     * @param int $pid
-     * project id
-     * @retval array $actions
-     */
-    public function get_actions($pid)
-    {
-        $sql = "SELECT *
-                FROM view_qualtricsActions
-                WHERE project_id = :pid";
-        return $this->db->query_db($sql, array(":pid" => $pid));
-    }
+    }    
 
     /**
      * Get all the actions for the project that should be synced, with distinct

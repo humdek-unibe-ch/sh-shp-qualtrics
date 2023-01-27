@@ -5,8 +5,8 @@
 ?>
 <?php
 require_once __DIR__ . "/../../../../../component/BaseComponent.php";
-require_once __DIR__ . "/../moduleQualtricsProjectAction/ModuleQualtricsProjectActionView.php";
-require_once __DIR__ . "/../moduleQualtricsProject/ModuleQualtricsProjectModel.php";
+require_once __DIR__ . "/../moduleQualtricsSurvey/ModuleQualtricsSurveyView.php";
+require_once __DIR__ . "/../moduleQualtricsSurvey/ModuleQualtricsSurveyModel.php";
 require_once __DIR__ . "/ModuleQualtricsSyncController.php";
 
 /**

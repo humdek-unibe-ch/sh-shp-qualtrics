@@ -4,13 +4,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../moduleQualtricsProject/ModuleQualtricsProjectModel.php";
+require_once __DIR__ . "/../../../../../component/BaseModel.php";
+
 /**
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
  */
-class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
+class ModuleQualtricsActionModel extends BaseModel
 {
+
+    /* Private Properties *****************************************************/
+    /**
+     * action id,
+     */
+    private $aid;
 
     /* Constructors ***********************************************************/
 
@@ -21,9 +28,10 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
      *  An associative array holding the differnt available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $pid)
+    public function __construct($services, $aid)
     {
-        parent::__construct($services, $pid);
+        parent::__construct($services, $aid);
+        $this->aid = $aid;
     }
 
     /**
@@ -43,7 +51,7 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
      * @retval int
      *  The id of the new action or false if the process failed.
      */
-    public function insert_new_action($pid, $data)
+    public function insert_new_action($data)
     {
         try {
             $this->db->begin_transaction();
@@ -51,7 +59,6 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
                 $data['schedule_info']['config'] = json_decode($data['schedule_info']['config'], true);
             }
             $actionId = $this->db->insert("qualtricsActions", array(
-                "id_qualtricsProjects" => $pid,
                 "name" => $data['name'],
                 "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],
                 "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
@@ -101,7 +108,7 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
      * @retval int
      *  The id of the new action or false if the process failed.
      */
-    public function update_action($pid, $data)
+    public function update_action($data)
     {
         try {
             $this->db->begin_transaction();
@@ -109,7 +116,6 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
                 $data['schedule_info']['config'] = json_decode($data['schedule_info']['config'], true);
             }
             $this->db->update_by_ids("qualtricsActions", array(
-                "id_qualtricsProjects" => $pid,
                 "name" => $data['name'],
                 "id_qualtricsSurveys" => $data['id_qualtricsSurveys'],
                 "id_qualtricsProjectActionTriggerTypes" => $data['id_qualtricsProjectActionTriggerTypes'],
@@ -202,5 +208,16 @@ class ModuleQualtricsProjectActionModel extends ModuleQualtricsProjectModel
             array_push($notifications, array("value" => $notification['id'], "text" => $notification['name']));
         }
         return $notifications;
+    }
+
+    /**
+     * Get all the actions
+     * @retval array $actions
+     */
+    public function get_actions()
+    {
+        $sql = "SELECT *
+                FROM view_qualtricsActions";
+        return $this->db->select_table("view_qualtricsActions");
     }
 }

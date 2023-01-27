@@ -8,7 +8,6 @@
     <div class="row">
         <div class="col-auto">
             <?php $this->output_side_buttons(); ?>            
-            
         </div>
         <div class="col">
             <?php $this->output_alert(); ?>

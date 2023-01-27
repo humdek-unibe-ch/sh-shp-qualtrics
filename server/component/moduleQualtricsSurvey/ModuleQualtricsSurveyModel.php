@@ -5,6 +5,8 @@
 ?>
 <?php
 require_once __DIR__ . "/../../../../../component/BaseModel.php";
+require_once __DIR__ . "/qualtrics_api_templates.php";
+
 /**
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
@@ -42,7 +44,6 @@ class ModuleQualtricsSurveyModel extends BaseModel
     const QUALTRICS_API_SUCCESS = '200 - OK';
 
     /* values */
-    const QUALTRICS_PARTICIPANT_VARIABLE_NAME = 'participant_variable';
     const QUALTRICS_PARTICIPANT_VARIABLE = 'code';
     const QUALTRICS_GROUP_VARIABLE = 'group';
     const QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE = 'ResponseID';

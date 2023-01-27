@@ -8,7 +8,7 @@ require_once __DIR__ . "/../../../../../component/BaseController.php";
 /**
  * The controller class of the group insert component.
  */
-class ModuleQualtricsProjectActionController extends BaseController
+class ModuleQualtricsActionController extends BaseController
 {
     /* Private Properties *****************************************************/
 
@@ -21,7 +21,7 @@ class ModuleQualtricsProjectActionController extends BaseController
      * @param object $model
      *  The model instance of the component.
      */
-    public function __construct($model, $pid)
+    public function __construct($model, $aid)
     {
         parent::__construct($model);
         if (isset($_POST['mode']) && !$this->check_acl($_POST['mode'])) {
@@ -33,22 +33,20 @@ class ModuleQualtricsProjectActionController extends BaseController
             isset($_POST['id_qualtricsSurveys']) &&
             isset($_POST['id_qualtricsProjectActionTriggerTypes']) &&
             isset($_POST['id_qualtricsActionScheduleTypes']) &&
-            isset($_POST['schedule_info']) &&
-            isset($pid)
+            isset($_POST['schedule_info'])
         ) {
             //insert mode
-            $this->insert_action($pid, $_POST);
+            $this->insert_action($_POST);
         } else if (
             isset($_POST['mode']) && $_POST['mode'] === UPDATE &&
             isset($_POST['name']) &&
             isset($_POST['id_qualtricsSurveys']) &&
             isset($_POST['id_qualtricsProjectActionTriggerTypes']) &&
             isset($_POST['id_qualtricsActionScheduleTypes']) &&
-            isset($_POST['schedule_info']) &&
-            isset($pid)
+            isset($_POST['schedule_info'])
         ) {
             //edit mode
-            $this->update_action($pid, $_POST);
+            $this->update_action($_POST);
         } else if (isset($_POST['mode']) && $_POST['mode'] === DELETE && isset($_POST['deleteActionName']) && isset($_POST['deleteActionId'])) {
             //delete mode
             $this->delete_action($_POST);
@@ -64,7 +62,7 @@ class ModuleQualtricsProjectActionController extends BaseController
      */
     private function check_acl($mode)
     {
-        if (!$this->model->get_services()->get_acl()->has_access($_SESSION['id_user'], $this->model->get_services()->get_db()->fetch_page_id_by_keyword("moduleQualtricsProjectAction"), $mode)) {
+        if (!$this->model->get_services()->get_acl()->has_access($_SESSION['id_user'], $this->model->get_services()->get_db()->fetch_page_id_by_keyword("moduleQualtricsAction"), $mode)) {
             $this->fail = true;
             $this->error_msgs[] = "You dont have rights to " . $mode . " this action";
             return false;
@@ -75,8 +73,6 @@ class ModuleQualtricsProjectActionController extends BaseController
 
     /**
      * Create new action for project and survey
-     * @param int $pid
-     * project id
      * @param array $data
      * id_qualtricsProjectActionTypes,
      * name,
@@ -87,10 +83,9 @@ class ModuleQualtricsProjectActionController extends BaseController
      * reminder array,
      * id_functions array
      */
-    private function insert_action($pid, $data)
+    private function insert_action($data)
     {
-        $this->pid = $this->model->insert_new_action($pid, $data);
-        if ($this->pid > 0) {
+        if ($this->model->insert_new_action($data)) {
             $this->success = true;
             $this->success_msgs[] = "Action " . $data['name'] . " was successfully added";
         } else {
@@ -107,9 +102,9 @@ class ModuleQualtricsProjectActionController extends BaseController
      */
     private function delete_action($data)
     {
-        $selectedAction = $this->model->get_db()->select_by_uid("view_qualtricsActions", $data['deleteActionId']);
+        $selectedAction = $this->model->get_services()->get_db()->select_by_uid("view_qualtricsActions", $data['deleteActionId']);
         if ($selectedAction['action_name'] === $data['deleteActionName']) {
-            $res = $this->model->get_db()->remove_by_fk("qualtricsActions", "id", $selectedAction['id']);
+            $res = $this->model->get_services()->get_db()->remove_by_fk("qualtricsActions", "id", $selectedAction['id']);
             if ($res) {
                 $this->mode = "deleted";
                 $this->success = true;
@@ -138,9 +133,9 @@ class ModuleQualtricsProjectActionController extends BaseController
      * reminder array,
      * id_functions array
      */
-    private function update_action($pid, $data)
+    private function update_action($data)
     {
-        if ($this->model->update_action($pid, $data) !== false) {
+        if ($this->model->update_action($data) !== false) {
             $this->success = true;
             $this->success_msgs[] = "Action " . $data['name'] . " was successfully updated";
         } else {

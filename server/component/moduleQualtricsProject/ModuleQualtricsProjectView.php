@@ -30,11 +30,6 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
      */
     private $project;
 
-    /**
-     * the actions for the current select project
-     */
-    private $actions;
-
     /* Constructors ***********************************************************/
 
     /**
@@ -49,7 +44,6 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
         $this->pid = $pid;
         $this->mode = $mode;
         $this->project = $this->model->get_project();
-        $this->actions = $this->model->get_actions($this->pid);
     }
 
     /* Private Methods ********************************************************/
@@ -264,17 +258,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
                 "css" => "d-block mb-3",
             ));
             $createButton->output_content();
-        }
-        if ($this->project && $this->mode === SELECT) {
-            // show add action button
-            $buttonAddAction = new BaseStyleComponent("button", array(
-                "label" => "Add Action",
-                "url" => $this->model->get_link_url("moduleQualtricsProjectAction", array("mode" => INSERT, "pid" => $this->pid)),
-                "type" => "secondary",
-                "css" => "d-block mb-3",
-            ));
-            $buttonAddAction->output_content();
-        }
+        }        
     }
 
     /**
@@ -285,17 +269,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
         foreach ($this->model->get_projects() as $project) {
             require __DIR__ . "/tpl_qualtricsProject_row.php";
         }
-    }
-
-    /**
-     * Render the qualtrics actions table content for the selected project.
-     */
-    protected function output_project_actions_rows()
-    {
-        foreach ($this->model->get_actions($this->pid) as $action) {
-            require __DIR__ . "/tpl_qualtricsProjectActionsRow.php";
-        }
-    }
+    }    
 
     /**
      * Get js include files required for this component. This overrides the
@@ -315,13 +289,6 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
         }
         return parent::get_js_includes($local);
     }
-
-    /**
-     * Render actions table for a project
-     */
-    public function output_project_actions()
-    {
-        require __DIR__ . "/tpl_qualtricsProjectActionsTable.php";
-    }
+    
 }
 ?>

@@ -17,8 +17,5 @@
     } else {
         echo "Missing entry!";
     }
-    if($this->actions && $this->mode === SELECT){
-        $this->output_project_actions();
-    }
     ?>
 </div>

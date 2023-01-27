@@ -5,14 +5,14 @@
 ?>
 <?php
 require_once __DIR__ . "/../../../../../component/BaseComponent.php";
-require_once __DIR__ . "/ModuleQualtricsProjectActionView.php";
-require_once __DIR__ . "/ModuleQualtricsProjectActionModel.php";
-require_once __DIR__ . "/ModuleQualtricsProjectActionController.php";
+require_once __DIR__ . "/ModuleQualtricsActionView.php";
+require_once __DIR__ . "/ModuleQualtricsActionModel.php";
+require_once __DIR__ . "/ModuleQualtricsActionController.php";
 
 /**
  * The class to define the asset select component.
  */
-class ModuleQualtricsProjectActionComponent extends BaseComponent
+class ModuleQualtricsActionComponent extends BaseComponent
 {
     /* Constructors ***********************************************************/
 
@@ -24,14 +24,13 @@ class ModuleQualtricsProjectActionComponent extends BaseComponent
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services, $params, $id_page)
+    public function __construct($services, $params)
     {
-        $pid = isset($params['pid']) ? intval($params['pid']) : null;
-        $sid = isset($params['sid']) ? intval($params['sid']) : null;
+        $aid = isset($params['aid']) ? intval($params['aid']) : null;
         $mode = isset($params['mode']) ? $params['mode'] : null;
-        $model = new ModuleQualtricsProjectActionModel($services, $pid);
-        $controller = new ModuleQualtricsProjectActionController($model, $pid);
-        $view = new ModuleQualtricsProjectActionView($model, $controller, $pid, $mode, $sid);
+        $model = new ModuleQualtricsActionModel($services, $aid);
+        $controller = new ModuleQualtricsActionController($model, $aid);
+        $view = new ModuleQualtricsActionView($model, $controller, $aid, $mode);
         parent::__construct($model, $view, $controller);
     }
 }
