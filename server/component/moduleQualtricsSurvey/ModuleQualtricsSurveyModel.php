@@ -21,6 +21,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
     const QUALTRICS_API_GET_SET_SURVEY_RESPONSE = 'https://eu.qualtrics.com/API/v3/surveys/:survey_api_id/responses/:survey_response';
     const QUALTRICS_API_GET_SET_SURVEY_OPTIONS = 'https://eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/options';
     const QUALTRICS_API_CREATE_CONTACT = 'https://eu.qualtrics.com/API/v3/mailinglists/:api_mailing_group_id/contacts';
+    const QUALTRICS_API_PUBLISH_SURVEY = 'https://eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/versions';
 
     /* Qualtrics flow types */
     const FLOW_TYPE_EMBEDDED_DATA = 'EmbeddedData';
@@ -237,9 +238,9 @@ class ModuleQualtricsSurveyModel extends BaseModel
      */
     private function return_info($result, $text)
     {
-        $res =array(
+        $res = array(
             "result" => $result,
-            "description" => '['.date('h:i:s').'] ' . $text
+            "description" => '[' . date('h:i:s') . '] ' . $text
         );
         return $res;
     }
@@ -964,5 +965,31 @@ class ModuleQualtricsSurveyModel extends BaseModel
             $res2 = $this->sync_anonymous_survey($survey, $surveyFlow);
         }
         return $this->multi_return_info(array($res1, $res2));
+    }
+
+    /**
+     * Publish survey in Qualtrics using qualtrics API
+     * @param array $survey
+     * The survey data
+     * @return object
+     * Return object with the result and description 
+     */
+    public function publishSurvey($survey)
+    {
+        $post_params = array(
+            "Description" => "Published on: " . date('Y-m-d H:i:s') . " by " . $this->db->fetch_user_name(),
+            "Published" => true
+        );
+        $data = array(
+            "request_type" => "POST",
+            "URL" => str_replace(':survey_api_id', $survey['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_PUBLISH_SURVEY),
+            "post_params" => json_encode($post_params)
+        );
+        $publishResult = $this->execute_curl($data);
+        if (isset($publishResult['meta']['error'])) {
+            return $this->return_info(false, $publishResult['meta']['error']['errorMessage']);
+        } else {
+            return $this->return_info(true, $survey['qualtrics_survey_id'] . ' was successfully published!');
+        }
     }
 }

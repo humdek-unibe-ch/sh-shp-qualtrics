@@ -306,21 +306,37 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
         if ($this->sid) {
             $syncSurvey = new BaseStyleComponent("button", array(
                 "id" => "syncQualtricsSurvey",
-                "label" => "Sync survey",
+                "label" => "Sync Survey",
                 "url" => $this->model->get_link_url("moduleQualtricsSync", array("sid" => $this->sid)),
                 "type" => "secondary",
                 "css" => "d-block mb-3",
             ));
             $syncSurvey->output_content();
+            $syncAndPublishSurvey = new BaseStyleComponent("button", array(
+                "id" => "syncAndPublishQualtricsSurvey",
+                "label" => "Sync & Publish",
+                "url" => $this->model->get_link_url("moduleQualtricsSync", array("sid" => $this->sid)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $syncAndPublishSurvey->output_content();
         } else {
             $syncSurveys = new BaseStyleComponent("button", array(
                 "id" => "syncQualtricsSurveys",
-                "label" => "Sync surveys",
+                "label" => "Sync Surveys",
                 "url" => $this->model->get_link_url("moduleQualtricsSync"),
                 "type" => "secondary",
                 "css" => "d-block mb-3",
             ));
             $syncSurveys->output_content();
+            $syncAndPublishSurveys = new BaseStyleComponent("button", array(
+                "id" => "syncQualtricsSurveysAndPublish",
+                "label" => "Sync & Publish Surveys",
+                "url" => $this->model->get_link_url("moduleQualtricsSync"),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $syncAndPublishSurveys->output_content();
         }
     }
 

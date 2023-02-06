@@ -66,6 +66,9 @@ class ModuleQualtricsSyncController extends BaseController
             if ($res['result']) {
                 $this->success = true;
                 $this->success_msgs[] = 'Survey ' . $survey['name'] . ': ' . $res['description'];
+                if ($_POST['type'] == 'qualtricsSyncAndPublish') {
+                    $this->publishSurvey($survey);
+                }
             } else {
                 $this->fail = true;
                 $this->error_msgs[] = $res['description'];
@@ -81,12 +84,32 @@ class ModuleQualtricsSyncController extends BaseController
     private function syncSurvey($sid)
     {
         $survey = $this->model->get_survey($sid);
-        if(!$survey){
+        if (!$survey) {
             $this->fail = true;
             $this->error_msgs[] = 'No survey';
             return;
         }
         $res = $this->model->syncSurvey($survey);
+        if ($res['result']) {
+            $this->success = true;
+            $this->success_msgs[] = 'Survey ' . $survey['name'] . ': ' . $res['description'];
+            if ($_POST['type'] == 'qualtricsSyncAndPublish') {
+                $this->publishSurvey($survey);
+            }
+        } else {
+            $this->fail = true;
+            $this->error_msgs[] = $res['description'];
+        }
+    }
+
+    /**
+     * Publish selected survey in Qualtrics
+     * @param object $survey
+     *  The survey data
+     */
+    private function publishSurvey($survey)
+    {
+        $res = $this->model->publishSurvey($survey);
         if ($res['result']) {
             $this->success = true;
             $this->success_msgs[] = 'Survey ' . $survey['name'] . ': ' . $res['description'];

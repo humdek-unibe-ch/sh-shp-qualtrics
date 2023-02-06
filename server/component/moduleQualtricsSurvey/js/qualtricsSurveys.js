@@ -137,6 +137,27 @@ $(document).ready(function () {
         });
     });
 
+    //confirmation for Qualtrics sync on survey
+    var qualtricsSycnButton = $('.style-section-syncAndPublishQualtricsSurvey').first();
+    var hrefSingleSurvey = $(qualtricsSycnButton).attr('href');
+    qualtricsSycnButton.click(function (e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Qualtrics Sync & Publish',
+            content: 'Are you sure that you want to synchronize this survey and publish it?',
+            buttons: {
+                confirm: function () {                    
+                    $(qualtricsSycnButton).attr('href', '#');
+                    event.stopPropagation();
+                    $.redirectPost(hrefSingleSurvey, { mode: 'select', type: 'qualtricsSyncAndPublish' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
+    });
+
     //confirmation for Qualtrics sync for all surveys
     var qualtricsSycnButton = $('.style-section-syncQualtricsSurveys').first();
     qualtricsSycnButton.click(function (e) {
@@ -151,6 +172,28 @@ $(document).ready(function () {
                     event.stopPropagation();  
                     console.log(href);                  
                     $.redirectPost(href, { mode: 'select', type: 'qualtricsSync' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
+    });
+
+    //confirmation for Qualtrics sync for all surveys
+    var qualtricsSycnButton = $('.style-section-syncQualtricsSurveysAndPublish').first();
+    qualtricsSycnButton.click(function (e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Qualtrics Sync & Publish',
+            content: 'Are you sure that you want to synchronize all surveys and then publish them?',
+            buttons: {
+                confirm: function () {
+                    var href = $(qualtricsSycnButton).attr('href');
+                    $(qualtricsSycnButton).attr('href', '#');
+                    event.stopPropagation();  
+                    console.log(href);                  
+                    $.redirectPost(href, { mode: 'select', type: 'qualtricsSyncAndPublish' });
                 },
                 cancel: function () {
 
