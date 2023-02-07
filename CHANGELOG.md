@@ -3,7 +3,7 @@
  - Fix new project error (php8)
 
 ### New Features
- - **BREAKING CHANGE** data save now is sent with a service, **all old surveys which saves data should be re-synced and published**
+ - **`BREAKING CHANGE`** data save now is sent with a service, **`all old surveys which saves data should be re-synced and published`**
  - move `moduleQualtrics` to parent `modules`
  - move `qualtrics_api` from project to user (it is personal, now)
  - remove `participant_variable` column from table `qualtricsSurveys`. The value is always `code` 
