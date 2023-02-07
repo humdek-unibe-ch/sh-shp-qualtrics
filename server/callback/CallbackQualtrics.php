@@ -25,6 +25,7 @@ class CallbackQualtrics extends BaseCallback
     /* Constants ************************************************/
     const VALIDATION_add_survey_response = 'add_survey_response';
     const VALIDATION_set_group = 'set_group';
+    const VALIDATION_save_data = 'save_data';
     const CALLBACK_NEW = 'callback_new';
     const CALLBACK_ERROR = 'callback_error';
     const CALLBACK_SUCCESS = 'callback_success';
@@ -135,36 +136,12 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
-     * Save the data, based on the configuration
-     * @param int $uid 
-     * user_id
-     * @param string $qualtrics_survey_id
-     * qualtrics survey id from Qualtrics
-     * @param string qualtrics_survey_response
-     * qualtrics respsonse id from Qualtrics
-     */
-    private function save_data($uid, $qualtrics_survey_id, $qualtrics_survey_response)
-    {
-        $config = $this->getSurvey($qualtrics_survey_id)['config'];
-        $config = json_decode($config, true);
-        if (isset($config['save_data']) && isset($config['save_data']['fields'])) {
-            $qualtrics_api = $this->get_qualtrics_api($qualtrics_survey_id);
-            $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
-            $survey_response = $moduleQualtrics->get_survey_response($qualtrics_survey_id, $qualtrics_survey_response);
-            $save_data_model = new SaveDataModel($this->services, $survey_response['values'], $uid, $qualtrics_survey_id, $qualtrics_survey_response);
-            return $save_data_model->save_data($config['save_data']);
-        } else {
-            return 'No data retrieval';
-        }
-    }
-
-    /**
      * Change the status of the queueud mails to deleted
      * @param array $scheduled_reminders
      * Arra with reminders that should be deleted
      */
     private function delete_reminders($scheduled_reminders)
-    {   
+    {
         $result = array();
         foreach ($scheduled_reminders as $reminder) {
             $result[] = $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_qualtrics_callback);
@@ -1316,6 +1293,16 @@ class CallbackQualtrics extends BaseCallback
                 $result['callback_status'] = CALLBACK_ERROR;
             }
         }
+        if ($type == CallbackQualtrics::VALIDATION_save_data) {
+            // validate save_data parameters
+            if (!isset($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]) || $data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE] == '') {
+                array_push($result['selfhelpCallback'], 'misisng participant');
+                $result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+            } else if (preg_match('/[^A-Za-z0-9]/', $data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
+                array_push($result['selfhelpCallback'], 'wrong participant value (only numbers and laters are possible)');
+                $result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+            }
+        }
         return $result;
     }
 
@@ -1370,9 +1357,8 @@ class CallbackQualtrics extends BaseCallback
                     } else if ($data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_finished) {
                         //update survey response
                         $update_id = $this->update_survey_response($data);
-                        $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);                        
+                        $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
                         $result['selfhelpCallback']["delete_reminders"] = $scheduled_reminders;
-                        $result['selfhelpCallback'][] = $this->save_data($user_id, $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
                         if ($scheduled_reminders && count($scheduled_reminders) > 0) {
                             $result['selfhelpCallback']["delete_reminders_result"] = $this->delete_reminders($scheduled_reminders);
                         }
@@ -1434,6 +1420,32 @@ class CallbackQualtrics extends BaseCallback
                     $result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] = CALLBACK_ERROR;
                 }
             }
+        }
+        $this->update_callback_log($callback_log_id, $result);
+        echo json_encode($result);
+    }
+
+    /**
+     * Save data for the user. 
+     *
+     * @param $data
+     * QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE,
+     * QUALTRICS_CALLBACK_KEY_VARIABLE,
+     */
+    public function save_data($data)
+    {
+        $callback_log_id = $this->insert_callback_log($_SERVER, $data);
+        $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_save_data);
+        if ($result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
+            //validation passed; try to execute
+            $data['id_users'] = $this->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
+            $fields = json_decode($data[ModuleQualtricsSurveyModel::QUALTRICS_SAVE_DATA]);
+            unset($data[ModuleQualtricsSurveyModel::QUALTRICS_SAVE_DATA]);
+            foreach ($fields as $key => $field) {
+                $data[$key] = $field;
+            }
+            $moduleQualtrics = new SaveDataModel($this->services);
+            $result['insert_into_db'] = $moduleQualtrics->insert_into_db($data);           
         }
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);

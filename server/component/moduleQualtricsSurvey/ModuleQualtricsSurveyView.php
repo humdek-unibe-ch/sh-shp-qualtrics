@@ -284,7 +284,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
      */
     public function output_page_content()
     {
-        if ($this->sid) {
+        if ($this->sid || $this->mode == INSERT) {
             require __DIR__ . "/tpl_qulatricsSurvey_entry.php";
         } else {
             require __DIR__ . "/tpl_qualtricsSurveys.php";            

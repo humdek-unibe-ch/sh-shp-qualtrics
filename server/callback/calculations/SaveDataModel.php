@@ -5,6 +5,7 @@
 ?>
 <?php
 require_once __DIR__ . "/../../../../../component/BaseModel.php";
+require_once __DIR__ . "/../../component/moduleQualtricsSurvey/ModuleQualtricsSurveyModel.php";
 /**
  * This class extrat fields if they are configured and save them in SelfHelp DB
  */
@@ -12,26 +13,6 @@ class SaveDataModel extends BaseModel
 {
 
     /* Private Properties *****************************************************/
-
-    /**
-     * Survey reposnse array from qualtrics
-     */
-    private $survey_response;
-
-    /**
-     * Qualtrics survey ID
-     */
-    private $qualtrics_survey_id;
-
-    /**
-     * User ID
-     */
-    private $uid;
-
-    /**
-     * Response id that comes from qualtrics survey
-     */
-    private $qualtrics_survey_response_id;
 
 
     /* Constructors ***********************************************************/
@@ -49,38 +30,37 @@ class SaveDataModel extends BaseModel
      * @param string $qualtrics_survey_id
      * qualtrics survey id from Qualtrics
      */
-    public function __construct($services, $survey_response, $uid, $qualtrics_survey_id, $qualtrics_survey_response_id)
+    public function __construct($services)
     {
         parent::__construct($services);
-        $this->survey_response = $survey_response;
-        $this->qualtrics_survey_id = $qualtrics_survey_id;
-        $this->uid = $uid;
-        $this->qualtrics_survey_response_id = $qualtrics_survey_response_id;
     }
 
     /* Private Methods ***********************************************************/
 
+
+    /* Public Methods *********************************************************/
+
     /**
-     * Insert the generated data in the static tables. It should be one row.
-     * @param string $survey_code
-     * This is the survey code id which will be used as table name
+     * Insert the generated data in the static tables. It should be one row.     
      * @param array $data 
      * the data that will be used to insert the row
-     * @retval string or false 
+     * @return string or false 
      * the result of the execution
      */
-    private function insert_into_db($survey_code, $data)
+    public function insert_into_db($data)
     {
-        $table_name = $survey_code; //suevey code id is used as table name
+        $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
         $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
-        if($id_table){
+        if ($id_table) {
             // if table exist; check if the entry exist already; if the repsonse was delayed and qualtrics sent multiple callbacks
-            $filter = "AND survey_response_id = '" . $this->qualtrics_survey_response_id ."'";
+            $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
             $entry = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
-            if($entry){
-                return "Response: " . $this->qualtrics_survey_response_id . ' was already added to DB';
+            if ($entry) {
+                return "Response: " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . ' was already added to DB';
             }
         }
+        unset($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+        unset($data[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_KEY_VARIABLE]);
         try {
             $this->db->begin_transaction();
             if (!$id_table) {
@@ -128,34 +108,10 @@ class SaveDataModel extends BaseModel
                 }
             }
             $this->db->commit();
-            return 'Response for user : ' . $this->uid . ' was successfully inserted in DB';
+            return 'Response for user : ' . $data['id_users'] . ' was successfully inserted in DB';
         } catch (Exception $e) {
             $this->db->rollback();
             return 'Error while inserting records in the uploadTables';
         }
-    }
-
-
-    /* Public Methods *********************************************************/
-
-    /**
-     * Save the data from survey in selfhelp db
-     * @retval array
-     * result log array
-     */
-    public function save_data($config)
-    {
-        $data = array();
-        $data['id_users'] = $this->uid;
-        $data['survey_response_id'] = $this->qualtrics_survey_response_id;
-        foreach ($config['fields'] as $key => $field) {
-            if (isset($this->survey_response[$field])) {
-                $data[$field] = $this->survey_response[$field];
-            } else {
-                $result['get_fields'][] = 'Field: ' . $field . ' is not in the survey response';
-            }
-        }
-        $result['insert_into_db'] = $this->insert_into_db($this->qualtrics_survey_id, $data);
-        return $result;
     }
 }

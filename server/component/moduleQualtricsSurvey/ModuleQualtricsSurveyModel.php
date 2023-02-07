@@ -37,6 +37,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
     const FLOW_ID_WEB_SERVICE_CONTACTS = 'FL_ws_contacts';
     const FLOW_ID_WEB_SERVICE_GROUP = 'FL_ws_group';
     const FLOW_ID_WEB_SERVICE_START = 'FL_ws_start';
+    const FLOW_ID_WEB_SERVICE_SAVE_DATA = 'FL_ws_save_data';
     const FLOW_ID_WEB_SERVICE_END = 'FL_ws_end';
     const FLOW_ID_AUTHENTICATOR = 'FL_auth';
     const FLOW_ID_AUTHENTICATOR_CONTACT = 'FL_999999'; //'FL_auth_cont'; // THIS SHOULD BE ONLY NUMBERS AFTER FL_
@@ -52,6 +53,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
     const QUALTRICS_ADDITIONAL_FUNCTIONS_VARIABLE = 'additional_functions';
     const QUALTRICS_CALLBACK_KEY_VARIABLE = 'callback_key';
     const QUALTRICS_TRIGGER_TYPE_VARIABLE = 'trigger_type';
+    const QUALTRICS_SAVE_DATA = 'save_data';
     const QUALTRICS_EMBEDED_SESSION_ID_VAR = '${e://Field/ResponseID}';
     const QUALTRICS_EMBEDED_SURVEY_ID_VAR = '${e://Field/SurveyID}';
     const QUALTRICS_CALLBACK_STATUS = 'callback_status';
@@ -488,6 +490,51 @@ class ModuleQualtricsSurveyModel extends BaseModel
         );
     }
 
+    /**
+     * Generate a web service flow for saving data
+     * @param array $fields
+     * the variable names that will be saved
+     * @return array
+     * return the start web service flow
+     */
+    private function get_webService_save_data($fields)
+    {
+        $editBodyParamsSave[] = array(
+            "key" => ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE,
+            "value" => '${e://Field/' . ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE . '}'
+        );
+        $editBodyParamsSave[] = array(
+            "key" => ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE,
+            "value" => ModuleQualtricsSurveyModel::QUALTRICS_EMBEDED_SURVEY_ID_VAR
+        );
+        $editBodyParamsSave[] = array(
+            "key" => ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE,
+            "value" => ModuleQualtricsSurveyModel::QUALTRICS_EMBEDED_SESSION_ID_VAR
+        );
+        $editBodyParamsSave[] = array(
+            "key" => ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_KEY_VARIABLE,
+            "value" => $this->db->get_callback_key()
+        );
+        $save_data_fields = array();
+        foreach ($fields as $key => $field) {
+            $save_data_fields[$field] = '${e://Field/' . $field . '}';
+        }
+        $editBodyParamsSave[] = array(
+            "key" => ModuleQualtricsSurveyModel::QUALTRICS_SAVE_DATA,
+            "value" => json_encode($save_data_fields, JSON_UNESCAPED_SLASHES)
+        );
+        $fireAndFroget = true;
+        $callbackResultStructure = array();
+        return $this->get_webService_flow(
+            $editBodyParamsSave,
+            ModuleQualtricsSurveyModel::FLOW_ID_WEB_SERVICE_SAVE_DATA,
+            $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackQualtrics", "method" => "save_data")),
+            true,
+            $fireAndFroget,
+            $callbackResultStructure
+        );
+    }
+
     private function get_webService_setGroup_flow($survey)
     {
 
@@ -605,6 +652,13 @@ class ModuleQualtricsSurveyModel extends BaseModel
 
             $baseline_webService_start = $this->get_webService_start_flow($survey);
 
+            $config = json_decode($survey['config'], true);
+            if (isset($config['save_data']) && isset($config['save_data']['fields'])) {
+                /** SAVE DATA WEB SERVICE *******************************************************************************************************************************/
+
+                $baseline_webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
+            }
+
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
 
             $baseline_webService_end = $this->get_webService_finish_flow($survey);
@@ -633,6 +687,15 @@ class ModuleQualtricsSurveyModel extends BaseModel
                     //already exist; overwirite
                     $surveyFlow['Flow'][$key] = $baseline_webService_start;
                     $baseline_webService_start = false; //not needed anymore later when we check is it assign
+                } else if ($flow['FlowID'] === ModuleQualtricsSurveyModel::FLOW_ID_WEB_SERVICE_SAVE_DATA) {
+                    //already exist; overwirite
+                    if (isset($baseline_webService_save_data)) {
+                        $surveyFlow['Flow'][$key] = $baseline_webService_save_data;
+                    } else {
+                        //remove the save data service, not needed
+                        unset($surveyFlow['Flow'][$key]);
+                    }
+                    $baseline_webService_save_data = false; //not needed anymore later when we check is it assign
                 } else if ($flow['FlowID'] === ModuleQualtricsSurveyModel::FLOW_ID_WEB_SERVICE_END) {
                     //already exist; overwirite
                     // This flow whoudl be allways at the end. Remove it now and allways add it at the end
@@ -669,6 +732,11 @@ class ModuleQualtricsSurveyModel extends BaseModel
             if ($baseline_embedded_flow) {
                 // add baseline embeded data
                 array_unshift($surveyFlow['Flow'], $baseline_embedded_flow);
+            }
+            // at at the end of the list
+            if (isset($baseline_webService_save_data) && $baseline_webService_save_data) {
+                // add baseline group web service
+                array_push($surveyFlow['Flow'], $baseline_webService_save_data);
             }
             // at at the end of the list
             if (isset($baseline_webService_group) && $baseline_webService_group) {
@@ -726,6 +794,13 @@ class ModuleQualtricsSurveyModel extends BaseModel
 
             $followup_webService_start = $this->get_webService_start_flow($survey);
 
+            $config = json_decode($survey['config'], true);
+            if (isset($config['save_data']) && isset($config['save_data']['fields'])) {
+                /** SAVE DATA WEB SERVICE *******************************************************************************************************************************/
+
+                $followup_webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
+            }
+
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
 
             $followup_webService_end = $this->get_webService_finish_flow($survey);
@@ -747,6 +822,15 @@ class ModuleQualtricsSurveyModel extends BaseModel
                             //already exist; overwirite
                             $followup_authenticator['Flow'][$keyAuth] = $followup_webService_start;
                             $followup_webService_start = false; //not needed anymore later when we check is it assign
+                        } else if ($flowAuth['FlowID'] === ModuleQualtricsSurveyModel::FLOW_ID_WEB_SERVICE_SAVE_DATA) {
+                            //already exist; overwirite
+                            if (isset($followup_webService_save_data)) {
+                                $followup_authenticator['Flow'][$keyAuth] = $followup_webService_save_data;
+                            } else {
+                                //remove the save data service, not needed
+                                unset($followup_authenticator['Flow'][$keyAuth]);
+                            }
+                            $followup_webService_save_data = false; //not needed anymore later when we check is it assign
                         } else if ($flowAuth['FlowID'] === ModuleQualtricsSurveyModel::FLOW_ID_WEB_SERVICE_END) {
                             //already exist; overwirite
                             // This flow whoudl be allways at the end. Remove it now and allways add it at the end
@@ -793,6 +877,11 @@ class ModuleQualtricsSurveyModel extends BaseModel
                 array_unshift($followup_authenticator['Flow'], $followup_embedded_flow);
             }
             // at at the end of the list
+            if (isset($followup_webService_save_data) && $followup_webService_save_data) {
+                // add baseline group web service
+                array_push($followup_authenticator['Flow'], $followup_webService_save_data);
+            }
+            // at at the end of the list
             if (isset($followup_webService_group) && $followup_webService_group) {
                 // add followup group web service
                 array_push($followup_authenticator['Flow'], $followup_webService_group);
@@ -824,6 +913,13 @@ class ModuleQualtricsSurveyModel extends BaseModel
 
             $webService_start = $this->get_webService_start_flow($survey);
 
+            $config = json_decode($survey['config'], true);
+            if (isset($config['save_data']) && isset($config['save_data']['fields'])) {
+                /** SAVE DATA WEB SERVICE *******************************************************************************************************************************/
+
+                $webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
+            }
+
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
 
             $webService_end = $this->get_webService_finish_flow($survey);
@@ -834,6 +930,15 @@ class ModuleQualtricsSurveyModel extends BaseModel
                     //already exist; overwirite
                     $surveyFlow['Flow'][$key] = $webService_start;
                     $webService_start = false; //not needed anymore later when we check is it assign
+                } else if ($flow['FlowID'] === ModuleQualtricsSurveyModel::FLOW_ID_WEB_SERVICE_SAVE_DATA) {
+                    //already exist; overwirite
+                    if (isset($webService_save_data)) {
+                        $surveyFlow['Flow'][$key] = $webService_save_data;
+                    } else {
+                        //remove the save data service, not needed
+                        unset($surveyFlow['Flow'][$key]);
+                    }
+                    $webService_save_data = false; //not needed anymore later when we check is it assign
                 } else if ($flow['FlowID'] === ModuleQualtricsSurveyModel::FLOW_ID_WEB_SERVICE_END) {
                     //already exist; overwirite
                     // This flow whould be allways at the end. Remove it now and allways add it at the end
@@ -848,6 +953,11 @@ class ModuleQualtricsSurveyModel extends BaseModel
             if ($webService_start) {
                 // add webService for starting the survey
                 array_unshift($surveyFlow['Flow'], $webService_start);
+            }
+            // at at the end of the list
+            if (isset($webService_save_data) && $webService_save_data) {
+                // add baseline group web service
+                array_push($surveyFlow['Flow'], $webService_save_data);
             }
             if ($webService_end) {
                 // add webService for finishing the survey
