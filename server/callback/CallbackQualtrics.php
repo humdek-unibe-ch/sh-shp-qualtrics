@@ -422,11 +422,14 @@ class CallbackQualtrics extends BaseCallback
         $result = array();
         //get all actions for this survey and trigger type
         $actions = $this->get_actions($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
-        $this->survey_response = []; // always clear it, new resposnce new data if we need it
+        $this->survey_response = []; // always clear it, new response new data if we need it
         if ($this->is_survey_response_needed($actions)) {
+            $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //survey code id is used as table name
+            $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
+            $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
             $start_time = microtime(true);
             $start_date = date("Y-m-d H:i:s");
-            $this->survey_response = $this->get_survey_response($data);
+            $this->survey_response = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
             $res['action'] = 'get_survey_response';
             $res['time'] = [];
             $end_time = microtime(true);
@@ -796,20 +799,6 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
-     * Get survey data
-     * @param array $data
-     * the data from the survey info
-     * @retval array
-     * the survey response information
-     */
-    private function get_survey_response($data)
-    {
-        $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-        $moduleQualtrics = new ModuleQualtricsProjectModel($this->services, null, $qualtrics_api);
-        return $moduleQualtrics->get_survey_response($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-    }
-
-    /**
      * Evaluate personal strenghts for WORKWELL project
      *
      * @param array $data
@@ -822,7 +811,6 @@ class CallbackQualtrics extends BaseCallback
     private function workwell_evaluate_strenghts($data, $user_id)
     {
         $result = [];
-        $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $strengths = array(
             "creativity" => array(
                 "coefficient_1" => 3.43,
@@ -969,16 +957,17 @@ class CallbackQualtrics extends BaseCallback
                 "value" => 0
             )
         );
-        $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
         $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
-        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
-        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
-        $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        // $survey_response = $moduleQualtrics->get_survey_response('SV_824CbMwxvS8SJsp', 'R_20SDVytaYg9mSyG'); //for testing
+        $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE];
+        $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
+        $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
+        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
+        $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
+        $survey_response = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
         foreach ($strengths as $key => $value) {
-            if (isset($survey_response['values'][$key])) {
+            if (isset($survey_response[$key])) {
                 //sudo apt install php-dev; pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
-                $x = $survey_response['values'][$key];
+                $x = $survey_response[$key];
                 $mu = $value["coefficient_1"];
                 $sigma = $value["coefficient_2"];
                 $normal = new Continuous\Normal($mu, $sigma);
@@ -993,7 +982,7 @@ class CallbackQualtrics extends BaseCallback
             $fields['Strengths' . $i] = $value['label'];
             $i++;
         }
-        $attachment = $this->get_attachment_info(qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts, $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE]);
+        $attachment = $this->get_attachment_info(qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts, $data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
         $pdf = new Pdf($attachment['template_path']);
         $pdf->fillForm($fields)
             ->needAppearances()
@@ -1037,9 +1026,10 @@ class CallbackQualtrics extends BaseCallback
         $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
         $result[] = $function_name;
         $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
-        // $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
-        $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        // $survey_response = $moduleQualtrics->get_survey_response('SV_039wOwdfOHnlAZT', 'R_2B8trWgcDYyyE29'); // for tests
+        $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
+        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
+        $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
+        $survey_response = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
         $attachment = $this->get_attachment_info($function_name, $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE]);
         $pdfTemplate = new Pdf($attachment['template_path']);
         $data_fields = $pdfTemplate->getDataFields()->__toArray();
@@ -1047,9 +1037,9 @@ class CallbackQualtrics extends BaseCallback
         // generate fields dynamically from the template
         $fields = array();
         foreach ($data_fields as $key => $value) {
-            if (isset($survey_response['values'][$value['FieldName']])) {
+            if (isset($survey_response[$value['FieldName']])) {
                 // $fields[$value['FieldName']] = $survey_response['values'][$value['FieldName']] . " Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
-                $fields[$value['FieldName']] = $survey_response['values'][$value['FieldName']];
+                $fields[$value['FieldName']] = $survey_response[$value['FieldName']];
             }
         }
         $pdf = new Pdf($attachment['template_path']);
@@ -1075,9 +1065,11 @@ class CallbackQualtrics extends BaseCallback
     {
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
-        $survey_response = $moduleQualtrics->get_survey_response($data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-        // $survey_response = $moduleQualtrics->get_survey_response('SV_9KzlhRjZtN8xMxv', 'R_1F3tlxta0W76adT'); // for tests
-        $bmz_sport_model = new BMZSportModel($this->services, $survey_response['values'], $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
+        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
+        $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
+        $survey_response = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
+        $bmz_sport_model = new BMZSportModel($this->services, $survey_response, $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         return $bmz_sport_model->evaluate_survey($this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE])['config']);
     }
 
