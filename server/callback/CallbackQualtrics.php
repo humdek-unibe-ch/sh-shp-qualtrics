@@ -408,6 +408,22 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Get the saved data from the survey 
+     * 
+     * @param array $data
+     *  the data from the callback.
+     * @return object
+     * 
+     */
+    private function get_survey_saved_data($data)
+    {
+        $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //survey code id is used as table name
+        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
+        $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
+        return $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC, null, true); // return db first
+    }
+
+    /**
      * Check if any event should be queued based on the actions
      *
      * @param array $data
@@ -424,12 +440,9 @@ class CallbackQualtrics extends BaseCallback
         $actions = $this->get_actions($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE], $data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE]);
         $this->survey_response = []; // always clear it, new response new data if we need it
         if ($this->is_survey_response_needed($actions)) {
-            $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //survey code id is used as table name
-            $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
-            $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
             $start_time = microtime(true);
             $start_date = date("Y-m-d H:i:s");
-            $this->survey_response = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
+            $this->survey_response = $this->get_survey_saved_data($data);
             $res['action'] = 'get_survey_response';
             $res['time'] = [];
             $end_time = microtime(true);
@@ -629,22 +642,22 @@ class CallbackQualtrics extends BaseCallback
     {
         $result = array();
         if (isset($schedule_info['config']['type']) && $schedule_info['config']['type'] == "overwrite_variable") {
-            // check qualtrics for more groups comming as embeded data
+            // check qualtrics for more groups coming as embedded data
             if (isset($schedule_info['config']['variable'])) {
                 foreach ($schedule_info['config']['variable'] as $key => $variable) {
-                    if (isset($this->survey_response['values'][$variable])) {
-                        $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $this->survey_response['values'][$variable];
-                        $schedule_info[$variable] = $this->survey_response['values'][$variable];
+                    if (isset($this->survey_response[$variable])) {
+                        $result[] = 'Overwrite variable `' . $variable . '` from ' . $schedule_info[$variable] . ' to ' . $this->survey_response[$variable];
+                        $schedule_info[$variable] = $this->survey_response[$variable];
                     }
                 }
             }
         }
         if (isset($schedule_info['config']['overwrite_variables']) && count($schedule_info['config']['overwrite_variables']) > 0) {
-            // check qualtrics for custom varaibles that overwrite some data
+            // check qualtrics for custom variables that overwrite some data
             foreach ($schedule_info['config']['overwrite_variables'] as $key => $var_pairs) {
-                if (isset($this->survey_response['values'][$var_pairs['embeded_variable']])) {
-                    $result[] = 'Overwrite variable `' . $var_pairs['embeded_variable'] . '` from ' . $schedule_info[$var_pairs['scheduled_variable']] . ' to ' . $this->survey_response['values'][$var_pairs['embeded_variable']];
-                    $schedule_info[$var_pairs['scheduled_variable']] = $this->survey_response['values'][$var_pairs['embeded_variable']];
+                if (isset($this->survey_response[$var_pairs['embeded_variable']])) {
+                    $result[] = 'Overwrite variable `' . $var_pairs['embeded_variable'] . '` from ' . $schedule_info[$var_pairs['scheduled_variable']] . ' to ' . $this->survey_response[$var_pairs['embeded_variable']];
+                    $schedule_info[$var_pairs['scheduled_variable']] = $this->survey_response[$var_pairs['embeded_variable']];
                 }
             }
         }
@@ -750,18 +763,6 @@ class CallbackQualtrics extends BaseCallback
         $check_config = $this->check_config($schedule_info);
         $schedule_info = $check_config['schedule_info'];
         $result = $check_config['result'];
-        // if ($schedule_info['config']['type'] == "add_group" || $schedule_info['config']['type'] == "remove_group") {
-        //     // check qualtrics for more groups comming as embeded data
-        //     // disabled for now as it is not used and it shouldbe improved not to be called multiple times for the same response
-        //     $survey_response = $this->get_survey_response($data);
-        //     $qualtrics_group = [];
-        //     if ($schedule_info['config']['type'] == "add_group" && isset($survey_response['values']['add_group'])) {
-        //         $qualtrics_group =  explode(',', $survey_response['values']['add_group']);
-        //     } else if ($schedule_info['config']['type'] == "remove_group" && isset($survey_response['values']['remove_group'])) {
-        //         $qualtrics_group =  explode(',', $survey_response['values']['remove_group']);
-        //     }
-        //     $schedule_info['config']['group'] = array_merge($schedule_info['config']['group'], $qualtrics_group);
-        // }
         $task = array(
             'id_jobTypes' => $this->db->get_lookup_id_by_value(jobTypes, jobTypes_task),
             "id_jobStatus" => $this->db->get_lookup_id_by_value(scheduledJobsStatus, scheduledJobsStatus_queued),
@@ -959,11 +960,8 @@ class CallbackQualtrics extends BaseCallback
         );
         $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
         $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE];
-        $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
-        $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
-        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
-        $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
-        $survey_response = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
+        $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];        
+        $survey_response = $this->get_survey_saved_data($data);
         foreach ($strengths as $key => $value) {
             if (isset($survey_response[$key])) {
                 //sudo apt install php-dev; pecl install stats-2.0.3 ; then added extension=stats.so to my php.ini
@@ -1025,11 +1023,8 @@ class CallbackQualtrics extends BaseCallback
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
         $result[] = $function_name;
-        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
-        $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
-        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
-        $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
-        $survey_response = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
+        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];        
+        $survey_response = $this->get_survey_saved_data($data);
         $attachment = $this->get_attachment_info($function_name, $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE]);
         $pdfTemplate = new Pdf($attachment['template_path']);
         $data_fields = $pdfTemplate->getDataFields()->__toArray();
@@ -1038,7 +1033,6 @@ class CallbackQualtrics extends BaseCallback
         $fields = array();
         foreach ($data_fields as $key => $value) {
             if (isset($survey_response[$value['FieldName']])) {
-                // $fields[$value['FieldName']] = $survey_response['values'][$value['FieldName']] . " Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
                 $fields[$value['FieldName']] = $survey_response[$value['FieldName']];
             }
         }
@@ -1064,11 +1058,8 @@ class CallbackQualtrics extends BaseCallback
     private function bmz_evaluate_motive($data)
     {
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-        $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
-        $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
-        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
-        $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
-        $survey_response = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
+        $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);        
+        $survey_response = $this->get_survey_saved_data($data);
         $bmz_sport_model = new BMZSportModel($this->services, $survey_response, $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         return $bmz_sport_model->evaluate_survey($this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE])['config']);
     }
@@ -1437,7 +1428,7 @@ class CallbackQualtrics extends BaseCallback
                 $data[$key] = $field;
             }
             $moduleQualtrics = new SaveDataModel($this->services);
-            $result['insert_into_db'] = $moduleQualtrics->insert_into_db($data);           
+            $result['insert_into_db'] = $moduleQualtrics->insert_into_db($data);
         }
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
