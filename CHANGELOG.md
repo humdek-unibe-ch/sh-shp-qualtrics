@@ -11,6 +11,8 @@
  - surveys now are synchronized at `surveys` not at `actions`
  - add field `extra_params` to style `qualtricsSurveys`
  - add `publish` survey functionality
+ - remove the functionality to create user form Qualtrics survey
+ - use `global_values` for translation
 
 # v1.2.0
 ### Bugfix

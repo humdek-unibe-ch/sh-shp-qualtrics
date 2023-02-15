@@ -33,11 +33,6 @@ class CallbackQualtrics extends BaseCallback
     /* Private Properties *****************************************************/
 
     /**
-     * The instance of the user model from the user component.
-     */
-    private $register_user_model = null;
-
-    /**
      * Services
      */
     private $services = null;
@@ -57,7 +52,6 @@ class CallbackQualtrics extends BaseCallback
     public function __construct($services)
     {
         parent::__construct($services);
-        $this->register_user_model = new RegisterModel($services, GUEST_USER_ID);
         $this->services = $services;
     }
 
@@ -71,10 +65,18 @@ class CallbackQualtrics extends BaseCallback
      */
     private function getUserId($code)
     {
-        $sql = "select id as id_users
-                from view_user_codes
-                where code  = :code";
+        $sql = "SELECT u.id AS id_users, id_languages, 
+                CASE
+                    WHEN u.name = 'admin' THEN 'admin'
+                    WHEN u.name = 'tpf' THEN 'tpf'    
+                    ELSE IFNULL(vc.code, '-') 
+                END AS code
+                FROM users AS u
+                LEFT JOIN validation_codes vc ON u.id = vc.id_users
+                WHERE u.intern <> 1 AND u.id_status > 0
+                AND code  = :code";
         $res = $this->db->query_db_first($sql, array(':code' => $code));
+        $_SESSION['language'] = isset($res['id_languages']) && $res['id_languages'] > 1 ? $res['id_languages'] : LANGUAGE; //set the session language of this user in case we need it later
         return  !isset($res['id_users']) ? -1 : $res['id_users'];
     }
 
@@ -147,36 +149,6 @@ class CallbackQualtrics extends BaseCallback
             $result[] = $this->job_scheduler->delete_job($reminder['id_scheduledJobs'], transactionBy_by_qualtrics_callback);
         }
         return $result;
-    }
-
-    /**
-     * Add a new user to the DB.
-     *
-     * @param string $code
-     *  The user code.     
-     * @retval int
-     *  The id of the new user.
-     */
-    private function insert_new_user($code)
-    {
-        try {
-            $this->db->begin_transaction();
-            $uid = $this->register_user_model->register_user_from_callback($code . '@selfhelp.psy.unibe.ch', $code);
-            if ($uid === false) {
-                $this->db->rollback();
-                return false;
-            } else {
-                if ($this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, $this->transaction::TABLE_USERS, $uid) === false) {
-                    $this->db->rollback();
-                    return false;
-                }
-            }
-            $this->db->commit();
-            return $uid;
-        } catch (Exception $e) {
-            $this->db->rollback();
-            return false;
-        }
     }
 
     /**
@@ -453,6 +425,13 @@ class CallbackQualtrics extends BaseCallback
         foreach ($actions as $action) {
             //clear the mail generation data
             if ($this->is_user_in_group($user_id, $action['id_groups'])) {
+
+                $global_values = $this->services->get_db()->get_global_values();
+                if ($global_values) {
+                    // replace global values if they are used
+                    $action['schedule_info'] = $this->services->get_db()->replace_calced_values($action['schedule_info'],  $global_values);
+                }
+
                 $schedule_info = json_decode($action['schedule_info'], true);
                 $res = array();
                 if ($action['action_schedule_type_code'] == actionScheduleJobs_task) {
@@ -960,7 +939,7 @@ class CallbackQualtrics extends BaseCallback
         );
         $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
         $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE];
-        $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];        
+        $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE];
         $survey_response = $this->get_survey_saved_data($data);
         foreach ($strengths as $key => $value) {
             if (isset($survey_response[$key])) {
@@ -1023,7 +1002,7 @@ class CallbackQualtrics extends BaseCallback
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
         $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
         $result[] = $function_name;
-        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];        
+        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
         $survey_response = $this->get_survey_saved_data($data);
         $attachment = $this->get_attachment_info($function_name, $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE]);
         $pdfTemplate = new Pdf($attachment['template_path']);
@@ -1058,7 +1037,7 @@ class CallbackQualtrics extends BaseCallback
     private function bmz_evaluate_motive($data)
     {
         $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-        $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);        
+        $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
         $survey_response = $this->get_survey_saved_data($data);
         $bmz_sport_model = new BMZSportModel($this->services, $survey_response, $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         return $bmz_sport_model->evaluate_survey($this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE])['config']);
@@ -1313,16 +1292,6 @@ class CallbackQualtrics extends BaseCallback
                 $result = array_merge($result, $this->check_functions_from_actions($data));
             } else {
                 $user_id = $this->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
-                if (!($user_id > 0)) {
-                    //user does not exist; create a new user with status auto_created
-                    $user_id = $this->insert_new_user($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
-                    if ($user_id > 0) {
-                        $result['selfhelpCallback'][] = "User with code " . $data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE] . " was created.";
-                    } else {
-                        $result['selfhelpCallback'][] = "Error. User with code " . $data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE] . " cannot be created.";
-                        $result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
-                    }
-                }
                 if ($user_id > 0) {
                     if ($data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_started) {
                         //insert survey response
