@@ -89,7 +89,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
     {
         if (!isset($this->user_qualtrics_api_key)) {
             // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
-            $form_id = $this->user_input->get_form_id(QUALTRICS_SETTINGS, FORM_DYNAMIC);
+            $form_id = $this->user_input->get_form_id(QUALTRICS_SETTINGS, FORM_INTERNAL);
             if ($form_id) {
                 $user_qualtrics_api_key = $this->user_input->get_data($form_id, '');
                 $this->user_qualtrics_api_key = $user_qualtrics_api_key && isset($user_qualtrics_api_key[0][QUALTRICS_API]) ? $user_qualtrics_api_key[0][QUALTRICS_API] : "";

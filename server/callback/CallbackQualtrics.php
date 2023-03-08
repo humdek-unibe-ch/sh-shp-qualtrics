@@ -390,9 +390,9 @@ class CallbackQualtrics extends BaseCallback
     private function get_survey_saved_data($data)
     {
         $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //survey code id is used as table name
-        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
+        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_EXTERNAL);
         $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
-        return $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC, null, true); // return db first
+        return $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_EXTERNAL, null, true); // return db first
     }
 
     /**

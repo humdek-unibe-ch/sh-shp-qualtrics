@@ -50,11 +50,11 @@ class SaveDataModel extends BaseModel
     public function insert_into_db($data)
     {
         $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
-        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_STATIC);
+        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_EXTERNAL);
         if ($id_table) {
             // if table exist; check if the entry exist already; if the repsonse was delayed and qualtrics sent multiple callbacks
             $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
-            $entry = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_STATIC);
+            $entry = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_EXTERNAL);
             if ($entry) {
                 return "Response: " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . ' was already added to DB';
             }
