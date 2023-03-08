@@ -1,3 +1,7 @@
+# v1.2.1
+### Bugfix
+ - check `reminders` when a Qaltrics action is created
+
 # v1.2.0
 ### Bugfix
  - Fix delete reminders when survey is done for diary type reminders
