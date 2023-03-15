@@ -60,6 +60,9 @@ class ModuleQualtricsSurveyModel extends BaseModel
     const SELFEHLP_HEADER_HIDE_QUALTRIC_LOGO = 'selfhelp_hideQualtricsLogo';
     const SELFEHLP_HEADER_IFRAME_RESIZER = 'selfhelp_iFrameResizer';
 
+    /**
+     * The user qualtrics api key
+     */
     private $user_qualtrics_api_key;
 
     /* Constructors ***********************************************************/
@@ -78,25 +81,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
 
     /**
      * PRIVATE METHODS *************************************************************************************************************
-     */
-
-    /**
-     * Get the user qualtrics api key
-     * @return string
-     * retun the api key or emty string
-     */
-    private function get_user_qualtrics_api_key()
-    {
-        if (!isset($this->user_qualtrics_api_key)) {
-            // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
-            $form_id = $this->user_input->get_form_id(QUALTRICS_SETTINGS, FORM_INTERNAL);
-            if ($form_id) {
-                $user_qualtrics_api_key = $this->user_input->get_data($form_id, '');
-                $this->user_qualtrics_api_key = $user_qualtrics_api_key && isset($user_qualtrics_api_key[0][QUALTRICS_API]) ? $user_qualtrics_api_key[0][QUALTRICS_API] : "";
-            }
-        }
-        return $this->user_qualtrics_api_key;
-    }
+     */    
 
     /**
      * Return Qualtrics headers
@@ -461,6 +446,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
      */
     private function get_webService_save_data($fields)
     {
+        // deprecated
         $editBodyParamsSave[] = array(
             "key" => ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE,
             "value" => '${e://Field/' . ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE . '}'
@@ -618,7 +604,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
             if (isset($config['save_data']) && isset($config['save_data']['fields'])) {
                 /** SAVE DATA WEB SERVICE *******************************************************************************************************************************/
 
-                $baseline_webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
+                // $baseline_webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
             }
 
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
@@ -760,7 +746,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
             if (isset($config['save_data']) && isset($config['save_data']['fields'])) {
                 /** SAVE DATA WEB SERVICE *******************************************************************************************************************************/
 
-                $followup_webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
+                // $followup_webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
             }
 
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
@@ -879,7 +865,7 @@ class ModuleQualtricsSurveyModel extends BaseModel
             if (isset($config['save_data']) && isset($config['save_data']['fields'])) {
                 /** SAVE DATA WEB SERVICE *******************************************************************************************************************************/
 
-                $webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
+                // $webService_save_data = $this->get_webService_save_data($config['save_data']['fields']);
             }
 
             /** END SURVEY WEB SERVICE *******************************************************************************************************************************/
@@ -951,7 +937,8 @@ class ModuleQualtricsSurveyModel extends BaseModel
             "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
             "id_qualtricsProjects" => $data['id_qualtricsProjects'],
             "config" => $data['config'],
-            "group_variable" => isset($data['group_variable']) ? 1 : 0
+            "group_variable" => isset($data['group_variable']) ? 1 : 0,
+            "save_data" => isset($data['save_data']) ? 1 : 0
         ));
     }
 
@@ -974,7 +961,8 @@ class ModuleQualtricsSurveyModel extends BaseModel
                 "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
                 "id_qualtricsProjects" => $data['id_qualtricsProjects'],
                 "config" => $data['config'],
-                "group_variable" => isset($data['group_variable']) ? 1 : 0
+                "group_variable" => isset($data['group_variable']) ? 1 : 0,
+                "save_data" => isset($data['save_data']) ? 1 : 0
             ),
             array('id' => $data['id'])
         );
@@ -1077,5 +1065,25 @@ class ModuleQualtricsSurveyModel extends BaseModel
         } else {
             return $this->return_info(true, $survey['qualtrics_survey_id'] . ' was successfully published!');
         }
+    }
+
+    /**
+     * Get the user qualtrics api key
+     * @param int $id_user
+     * If the user is set, we need the api key for a specific user
+     * @return string
+     * return the api key or empty string
+     */
+    public function get_user_qualtrics_api_key($id_users = null)
+    {
+        if (!isset($this->user_qualtrics_api_key)) {
+            // check the database only once. If it is already assigned do not make a query and just returned the already assigned value
+            $form_id = $this->user_input->get_form_id(QUALTRICS_SETTINGS, FORM_INTERNAL);
+            if ($form_id) {
+                $user_qualtrics_api_key = $id_users ? $this->user_input->get_data($form_id, '', false, FORM_INTERNAL, $id_users)  : $this->user_input->get_data($form_id, '');
+                $this->user_qualtrics_api_key = $user_qualtrics_api_key && isset($user_qualtrics_api_key[0][QUALTRICS_API]) ? $user_qualtrics_api_key[0][QUALTRICS_API] : "";
+            }
+        }
+        return $this->user_qualtrics_api_key;
     }
 }

@@ -21,7 +21,8 @@
                     <th scope="col">Qualtrics Survey ID</th>
                     <th scope="col">Project</th>
                     <th scope="col">Survey Type</th>
-                    <th scope="col">Group variabe</th>
+                    <th scope="col">Save data</th>
+                    <th scope="col">Group variable</th>
                     <th scope="col">Survey Description</th>
                 </tr>
             </thead>

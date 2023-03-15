@@ -38,10 +38,15 @@ class CallbackQualtrics extends BaseCallback
     private $services = null;
 
     /**
-     * The QUaltrics survey result is kept here
+     * The Qualtrics survey result is kept here
      * It is used only when there is overwrite in the config settings
      */
     private $survey_response = [];
+
+    /**
+     * Instance of ModuleQualtricsSurveyModel
+     */
+    private $moduleQualtricsSurveyModel;
 
     /**
      * The constructor.
@@ -53,6 +58,7 @@ class CallbackQualtrics extends BaseCallback
     {
         parent::__construct($services);
         $this->services = $services;
+        $this->moduleQualtricsSurveyModel = new ModuleQualtricsSurveyModel($this->services);
     }
 
     /**
@@ -998,13 +1004,10 @@ class CallbackQualtrics extends BaseCallback
     private function fill_pdf_with_qualtrics_embeded_data($function_name, $data, $user_id)
     {
         $result = [];
-        $result = [];
-        $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-        $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
         $result[] = $function_name;
-        $result[] = $data[$moduleQualtrics::QUALTRICS_SURVEY_ID_VARIABLE];
+        $result[] = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE];
         $survey_response = $this->get_survey_saved_data($data);
-        $attachment = $this->get_attachment_info($function_name, $data[$moduleQualtrics::QUALTRICS_PARTICIPANT_VARIABLE]);
+        $attachment = $this->get_attachment_info($function_name, $data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
         $pdfTemplate = new Pdf($attachment['template_path']);
         $data_fields = $pdfTemplate->getDataFields()->__toArray();
 
@@ -1036,10 +1039,8 @@ class CallbackQualtrics extends BaseCallback
      */
     private function bmz_evaluate_motive($data)
     {
-        $qualtrics_api = $this->get_qualtrics_api($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-        $moduleQualtrics = new ModuleQualtricsSurveyModel($this->services, null, $qualtrics_api);
         $survey_response = $this->get_survey_saved_data($data);
-        $bmz_sport_model = new BMZSportModel($this->services, $survey_response, $data[$moduleQualtrics::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+        $bmz_sport_model = new BMZSportModel($this->services, $survey_response, $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
         return $bmz_sport_model->evaluate_survey($this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE])['config']);
     }
 
@@ -1287,6 +1288,10 @@ class CallbackQualtrics extends BaseCallback
         if ($result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
             //validation passed; try to execute
             $suereyInfo = $this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+            if ($data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_finished) {
+                // save the data
+                $this->save_qualtrics_response($suereyInfo, $data);
+            }
             if ($suereyInfo['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
                 // annonymous survey, no user
                 $result = array_merge($result, $this->check_functions_from_actions($data));
@@ -1317,7 +1322,6 @@ class CallbackQualtrics extends BaseCallback
                         if ($update_id > 0) {
                             //successfully updated survey repsonse
                             $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
-                            $this->save_qualtrics_response($this->get_survey_response($suereyInfo, $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]));
                             $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id);
                             $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
                         } else {
@@ -1387,6 +1391,8 @@ class CallbackQualtrics extends BaseCallback
      */
     public function save_data($data)
     {
+        echo "deprecated";
+        return;
         $callback_log_id = $this->insert_callback_log($_SERVER, $data);
         $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_save_data);
         if ($result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
@@ -1398,7 +1404,7 @@ class CallbackQualtrics extends BaseCallback
                 $data[$key] = $field;
             }
             $moduleQualtrics = new SaveDataModel($this->services);
-            $result['insert_into_db'] = $moduleQualtrics->insert_into_db($data);            
+            $result['insert_into_db'] = $moduleQualtrics->insert_into_db($data);
         }
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
@@ -1422,7 +1428,7 @@ class CallbackQualtrics extends BaseCallback
             "URL" => $url,
             "header" => array(
                 "Content-Type: application/json",
-                "X-API-TOKEN: " . 'Sn5g5dZsAGSzcscy9NrIqNoHCePBQ8Sck1M2W0Wp'
+                "X-API-TOKEN: " . $this->moduleQualtricsSurveyModel->get_user_qualtrics_api_key($suereyInfo['id_users_last_sync'])
             )
         );
         $result = ModuleQualtricsSurveyModel::execute_curl_call($data);
@@ -1443,8 +1449,44 @@ class CallbackQualtrics extends BaseCallback
         return $result;
     }
 
-    private function save_qualtrics_response(){
-        
+    /**
+     * Save the qulatrics data in upload tables
+     * @param object $surveyInfo
+     * The survey info
+     * @param object $survey_response_data
+     * The survey data comming from Qualtrics with the web service
+     */
+    private function save_qualtrics_response($suereyInfo, $survey_response_data)
+    {
+        $user_id = 1; //guest
+        if (isset($survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
+            // it is not anonymous, get the user id
+            $user_id = $this->getUserId($survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
+        }
+        $prep_data = array(
+            "responseId" => $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE],
+            "id_users" => $user_id
+        );
+        if ($suereyInfo['save_data']) {
+            // save the data only if it is enabled
+            $data = $this->get_survey_response($suereyInfo, $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+            foreach ($data['values'] as $key => $value) {
+                // get all the values
+                if (!is_array($value)) {
+                    $prep_data[$key] = $value;
+                }
+            }
+            foreach ($data['labels'] as $key => $value) {
+                // get all the labels
+                if (!is_array($value)) {
+                    $prep_data[$key . '_label'] = $value;
+                }
+            }
+        }
+        $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $suereyInfo['qualtrics_survey_id'], $prep_data, array(
+            "responseId" => $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE],
+            "id_users" => $user_id
+        ));
     }
 }
 ?>

@@ -59,6 +59,7 @@ CALL add_table_column('qualtricsSurveys', 'id_qualtricsProjects', 'INT(10) UNSIG
 CALL add_table_column('qualtricsSurveys', 'id_users_last_sync', 'INT(10) UNSIGNED ZEROFILL NULL');
 CALL add_foreign_key('qualtricsSurveys', 'qualtricsSurveys_fk_id_users_last_sync', 'id_users_last_sync', 'users (id)');
 
+CALL add_table_column('qualtricsSurveys', 'save_data', "INT(11) DEFAULT '0'");
 
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions

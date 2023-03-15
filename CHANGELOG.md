@@ -3,7 +3,7 @@
  - Fix new project error (php8)
 
 ### New Features
- - **`BREAKING CHANGE`** data save now is sent with a service, **`all old surveys which saves data should be re-synced and published`**
+ - add field `save_data` on a survey. When it is enabled it pulls all survey data once the survey is finished. Now the save use the universal `save_external_data` function
  - move `moduleQualtrics` to parent `modules`
  - move `qualtrics_api` from project to user (it is personal, now)
  - remove `participant_variable` column from table `qualtricsSurveys`. The value is always `code` 

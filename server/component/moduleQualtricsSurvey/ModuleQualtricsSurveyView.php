@@ -148,6 +148,15 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                         new BaseStyleComponent("template", array(
                             "path" => __DIR__ . "/tpl_checkBox.php",
                             "items" => array(
+                                "is_checked" => $this->survey ? $this->survey['save_data'] : '',
+                                "id_HTML" => 'save_data',
+                                "label" => 'Save data',
+                                "disabled" => ""
+                            )
+                        )),
+                        new BaseStyleComponent("template", array(
+                            "path" => __DIR__ . "/tpl_checkBox.php",
+                            "items" => array(
                                 "is_checked" => $this->survey ? $this->survey['group_variable'] : '',
                                 "id_HTML" => 'group_variable',
                                 "label" => 'Group variable',
@@ -226,6 +235,15 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                     "children" => array(new BaseStyleComponent("rawText", array(
                         "text" => $this->survey['survey_type']
                     ))),
+                )),
+                new BaseStyleComponent("template", array(
+                    "path" => __DIR__ . "/tpl_checkBox.php",
+                    "items" => array(
+                        "is_checked" => $this->survey['save_data'],
+                        "id_HTML" => 'save_data',
+                        "label" => 'Save data',
+                        "disabled" => "disabled"
+                    )
                 )),
                 new BaseStyleComponent("template", array(
                     "path" => __DIR__ . "/tpl_checkBox.php",

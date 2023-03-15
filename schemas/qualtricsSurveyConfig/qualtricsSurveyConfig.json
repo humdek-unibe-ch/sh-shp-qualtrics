@@ -4,30 +4,6 @@
     "title": "Qualtrics Survey Config",
     "format": "grid",
     "properties": {
-        "save_data": {
-            "type": "object",
-            "title": "Save data",
-            "description": "Save variable form Qualtrics Survey",
-            "properties": {
-                "fields": {
-                    "type": "array",
-                    "format": "table",
-                    "title": "Variables",
-                    "description": "List with embeded variable names from the Qualtrics Survey",
-                    "items": {
-                        "type": "string",
-                        "title": "Variable name",
-                        "description": "Embeded variable name from the Qualtrics Survey"
-                    },
-                    "required": [
-                        "items"
-                    ]
-                }
-            },
-            "required": [
-                "fields"
-            ]
-        },
         "group_65_plus": {
             "type": "object",
             "properties": {
