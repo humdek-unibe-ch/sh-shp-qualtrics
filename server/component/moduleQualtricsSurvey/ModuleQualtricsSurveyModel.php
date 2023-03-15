@@ -98,11 +98,11 @@ class ModuleQualtricsSurveyModel extends BaseModel
         return $this->user_qualtrics_api_key;
     }
 
-    private function get_qualtrics_api()
-    {
-        return "X-API-TOKEN: " . $this->get_user_qualtrics_api_key();
-    }
-
+    /**
+     * Return Qualtrics headers
+     * @return object
+     * Return the qualtrics headers structure
+     */
     private function get_qualtrics_api_headers()
     {
         $headers = array();
@@ -114,60 +114,6 @@ class ModuleQualtricsSurveyModel extends BaseModel
         return $headers;
     }
 
-    private function get_default_qaltrics_curl_settings()
-    {
-        $arr = array(
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 100,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_HTTPHEADER => array(
-                "Content-Type: application/json",
-                $this->get_qualtrics_api()
-            )
-        );
-
-        if (DEBUG) {
-            //skip ssl checks for local testing
-            $arr[CURLOPT_SSL_VERIFYHOST] = false;
-            $arr[CURLOPT_SSL_VERIFYPEER] = false;
-        }
-
-        return $arr;
-    }
-
-    /**
-     * Execute curl and get/set data to Qualtrics
-     * @param array $data
-     * request_type, url, post_params
-     * @retval bool
-     *  false or response
-     */
-    private function execute_curl($data)
-    {
-        // curl module should be installed
-        // sudo apt-get install php-curl
-        try {
-            $curl = curl_init();
-            curl_setopt_array($curl, $this->get_default_qaltrics_curl_settings());
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $data['request_type']);
-            curl_setopt($curl, CURLOPT_URL, $data['URL']);
-            if (isset($data['post_params'])) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $data['post_params']);
-            }
-
-            $response = curl_exec($curl);
-            $response = json_decode($response, true);
-
-            curl_close($curl);
-            return $response;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
     /**
      * Get survey flow via qualtrics api
      * @param string $survey_api_id qualtrics survey id
@@ -177,9 +123,13 @@ class ModuleQualtricsSurveyModel extends BaseModel
     {
         $data = array(
             "request_type" => "GET",
-            "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_FLOW)
+            "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_FLOW),
+             "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
+            )
         );
-        $result = $this->execute_curl($data);
+        $result = $this->execute_curl_call($data);
         if (isset($result['meta']['error'])) {
             return $this->return_info(false, $result['meta']['error']['errorMessage']);
         }
@@ -197,9 +147,13 @@ class ModuleQualtricsSurveyModel extends BaseModel
         //get survey options; they contain the survey header
         $data = array(
             "request_type" => "GET",
-            "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_OPTIONS)
+            "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_OPTIONS),
+             "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
+            )
         );
-        $survey_options = $this->execute_curl($data);
+        $survey_options = $this->execute_curl_call($data);
         if (isset($survey_options['meta']['error'])) {
             return $this->return_info(false, $survey_options['meta']['error']['errorMessage']);
         }
@@ -280,11 +234,15 @@ class ModuleQualtricsSurveyModel extends BaseModel
         $data = array(
             "request_type" => "PUT",
             "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_FLOW),
-            "post_params" => json_encode($flow)
+            "post_params" => json_encode($flow),
+             "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
+            )
         );
-        $result = $this->execute_curl($data);
+        $result = $this->execute_curl_call($data);
         if (!$result) {
-            return $this->return_info(false, "Something went wrong assinging the survey flow");
+            return $this->return_info(false, "Something went wrong assigning the survey flow");
         } else {
             if ($result['meta']['httpStatus'] === ModuleQualtricsSurveyModel::QUALTRICS_API_SUCCESS) {
                 return $this->return_info(true, "The survey flow was synchronized");
@@ -305,9 +263,13 @@ class ModuleQualtricsSurveyModel extends BaseModel
         $data = array(
             "request_type" => "PUT",
             "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_OPTIONS),
-            "post_params" => json_encode($options)
+            "post_params" => json_encode($options),
+             "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
+            )
         );
-        $result = $this->execute_curl($data);
+        $result = $this->execute_curl_call($data);
         if (!$result) {
             return $this->return_info(false, "Something went wrong with assigning survey options");
         } else {
@@ -1074,6 +1036,16 @@ class ModuleQualtricsSurveyModel extends BaseModel
         } else if ($survey['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
             $res2 = $this->sync_anonymous_survey($survey, $surveyFlow);
         }
+        if($res1['result'] && $res2['result']){
+            // sync was successful, set the last user who synced the survey. Later we will use this api key for pulling responses
+            $this->db->update_by_ids(
+                "qualtricsSurveys",
+                array(
+                    "id_users_last_sync" => $_SESSION['id_user']
+                ),
+                array("id" => $survey['id'])
+            );
+        }
         return $this->multi_return_info(array($res1, $res2));
     }
 
@@ -1093,9 +1065,13 @@ class ModuleQualtricsSurveyModel extends BaseModel
         $data = array(
             "request_type" => "POST",
             "URL" => str_replace(':survey_api_id', $survey['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_PUBLISH_SURVEY),
-            "post_params" => json_encode($post_params)
+            "post_params" => json_encode($post_params),
+             "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
+            )
         );
-        $publishResult = $this->execute_curl($data);
+        $publishResult = $this->execute_curl_call($data);
         if (isset($publishResult['meta']['error'])) {
             return $this->return_info(false, $publishResult['meta']['error']['errorMessage']);
         } else {

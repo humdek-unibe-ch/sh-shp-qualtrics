@@ -212,7 +212,7 @@ class ModuleQualtricsActionModel extends BaseModel
 
     /**
      * Get all the actions
-     * @retval array $actions
+     * @return array $actions
      */
     public function get_actions()
     {

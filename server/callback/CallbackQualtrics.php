@@ -1317,6 +1317,7 @@ class CallbackQualtrics extends BaseCallback
                         if ($update_id > 0) {
                             //successfully updated survey repsonse
                             $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
+                            $this->save_qualtrics_response($this->get_survey_response($suereyInfo, $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]));
                             $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id);
                             $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
                         } else {
@@ -1397,10 +1398,53 @@ class CallbackQualtrics extends BaseCallback
                 $data[$key] = $field;
             }
             $moduleQualtrics = new SaveDataModel($this->services);
-            $result['insert_into_db'] = $moduleQualtrics->insert_into_db($data);
+            $result['insert_into_db'] = $moduleQualtrics->insert_into_db($data);            
         }
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
+    }
+
+    /**
+     * Get survey resposne via qualtrics api
+     * 
+     * @param string $survey_api_id 
+     * qualtrics survey id
+     * @param string $survey_response 
+     * survey_response indetifier
+     * @retval array with the survey response or false
+     */
+    private function get_survey_response($suereyInfo, $survey_response)
+    {
+        $url = str_replace(':survey_api_id', $suereyInfo['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_RESPONSE);
+        $url = str_replace(':survey_response', $survey_response, $url);
+        $data = array(
+            "request_type" => "GET",
+            "URL" => $url,
+            "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . 'Sn5g5dZsAGSzcscy9NrIqNoHCePBQ8Sck1M2W0Wp'
+            )
+        );
+        $result = ModuleQualtricsSurveyModel::execute_curl_call($data);
+        $result = ($result['meta']['httpStatus'] === ModuleQualtricsSurveyModel::QUALTRICS_API_SUCCESS) ? $result['result'] : false;
+        $loops = 0;
+        while (!$result) {
+            //it takes time for the response to be recorded
+            sleep(1);
+            $loops++;
+            $result = ModuleQualtricsSurveyModel::execute_curl_call($data);
+            $result = ($result['meta']['httpStatus'] === ModuleQualtricsSurveyModel::QUALTRICS_API_SUCCESS && isset($result['result'])) ? $result['result'] : false;
+            if ($loops > 60) {
+                // we wait maximum 1 minute for the response
+                $result = false;
+                break;
+            }
+        }
+        return $result;
+    }
+
+    private function save_qualtrics_response(){
+        
     }
 }
 ?>

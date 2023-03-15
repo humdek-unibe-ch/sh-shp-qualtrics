@@ -46,38 +46,6 @@ class ModuleQualtricsProjectModel extends BaseModel
      */
 
     /**
-     * Get survey resposne via qualtrics api
-     * @param string $survey_api_id qualtrics survey id
-     * @param string $survey_response survey_response indetifier
-     * @retval array with the survey response or false
-     */
-    public function get_survey_response($survey_api_id, $survey_response)
-    {
-        $url = str_replace(':survey_api_id', $survey_api_id, $this::QUALTRICS_API_GET_SET_SURVEY_RESPONSE);
-        $url = str_replace(':survey_response', $survey_response, $url);
-        $data = array(
-            "request_type" => "GET",
-            "URL" => $url
-        );
-        $result = $this->execute_curl($data);
-        $result = ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS) ? $result['result'] : false;
-        $loops = 0;
-        while (!$result) {
-            //it takes time for the response to be recorded
-            sleep(1);
-            $loops++;
-            $result = $this->execute_curl($data);
-            $result = ($result['meta']['httpStatus'] === ModuleQualtricsProjectModel::QUALTRICS_API_SUCCESS && isset($result['result'])) ? $result['result'] : false;
-            if ($loops > 60) {
-                // we wait maximum 1 minute for the response
-                $result = false;
-                break;
-            }
-        }
-        return $result;
-    }
-
-    /**
      * Insert a new qualtrics project to the DB.
      *
      * @param array $data

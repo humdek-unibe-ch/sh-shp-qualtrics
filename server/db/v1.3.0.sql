@@ -56,6 +56,9 @@ INSERT IGNORE INTO `sections_hierarchy` (`parent`, `child`, `position`) VALUES
 
 CALL add_table_column('qualtricsSurveys', 'id_qualtricsProjects', 'INT(10) UNSIGNED ZEROFILL NOT NULL');
 
+CALL add_table_column('qualtricsSurveys', 'id_users_last_sync', 'INT(10) UNSIGNED ZEROFILL NULL');
+CALL add_foreign_key('qualtricsSurveys', 'qualtricsSurveys_fk_id_users_last_sync', 'id_users_last_sync', 'users (id)');
+
 
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions

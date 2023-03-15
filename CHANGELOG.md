@@ -14,6 +14,10 @@
  - remove the functionality to create user form Qualtrics survey
  - use `global_values` for translation
 
+# v1.2.1
+### Bugfix
+ - check `reminders` when a Qualtrics action is created
+
 # v1.2.0
 ### Bugfix
  - Fix delete reminders when survey is done for diary type reminders
