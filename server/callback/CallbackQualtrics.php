@@ -1201,8 +1201,8 @@ class CallbackQualtrics extends BaseCallback
         }
         if ($type == CallbackQualtrics::VALIDATION_add_survey_response) {
             // validate add_survey_response parameters
-            $suereyInfo = $this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-            if ($suereyInfo['survey_type_code'] !== qualtricsSurveyTypes_anonymous) {
+            $surveyInfo = $this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+            if ($surveyInfo['survey_type_code'] !== qualtricsSurveyTypes_anonymous) {
                 // validate participent variable only if it is not anonymous
                 if (!isset($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]) || $data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE] == '') {
                     array_push($result['selfhelpCallback'], 'misisng participant');
@@ -1286,14 +1286,9 @@ class CallbackQualtrics extends BaseCallback
         $callback_log_id = $this->insert_callback_log($_SERVER, $data);
         $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_add_survey_response);
         if ($result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
-            //validation passed; try to execute
-            $suereyInfo = $this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-            if ($data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_finished) {
-                // save the data
-                $this->save_qualtrics_response($suereyInfo, $data);
-            }
-            if ($suereyInfo['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
-                // annonymous survey, no user
+            $surveyInfo = $this->getSurvey($data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+            if ($surveyInfo['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
+                // anonymous survey, no user
                 $result = array_merge($result, $this->check_functions_from_actions($data));
             } else {
                 $user_id = $this->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
@@ -1302,12 +1297,12 @@ class CallbackQualtrics extends BaseCallback
                         //insert survey response
                         $inserted_id = $this->insert_survey_response($data, $user_id);
                         if ($inserted_id > 0) {
-                            //successfully inserted survey repsonse
+                            //successfully inserted survey response
                             $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was inserted.";
                             $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id);
                             $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
                         } else {
-                            //something went wrong; survey resposne was not inserted
+                            //something went wrong; survey response was not inserted
                             $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not inserted.";
                             $result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
                         }
@@ -1320,9 +1315,9 @@ class CallbackQualtrics extends BaseCallback
                             $result['selfhelpCallback']["delete_reminders_result"] = $this->delete_reminders($scheduled_reminders);
                         }
                         if ($update_id > 0) {
-                            //successfully updated survey repsonse
+                            //successfully updated survey response
                             $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
-                            $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id);
+                            $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id); //legacy actions
                             $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
                         } else {
                             //something went wrong; survey resposne was not updated
@@ -1339,6 +1334,13 @@ class CallbackQualtrics extends BaseCallback
         $result['time']['start_date'] = $start_date;
         $this->update_callback_log($callback_log_id, $result);
         echo json_encode($result);
+        if ($result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
+            //validation passed; try to execute            
+            if ($data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_finished) {
+                // save the data
+                $this->save_qualtrics_response($surveyInfo, $data);
+            }
+        }
     }
 
     /**
@@ -1419,16 +1421,16 @@ class CallbackQualtrics extends BaseCallback
      * survey_response indetifier
      * @retval array with the survey response or false
      */
-    private function get_survey_response($suereyInfo, $survey_response)
+    private function get_survey_response($surveyInfo, $survey_response)
     {
-        $url = str_replace(':survey_api_id', $suereyInfo['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_RESPONSE);
+        $url = str_replace(':survey_api_id', $surveyInfo['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_RESPONSE);
         $url = str_replace(':survey_response', $survey_response, $url);
         $data = array(
             "request_type" => "GET",
             "URL" => $url,
             "header" => array(
                 "Content-Type: application/json",
-                "X-API-TOKEN: " . $this->moduleQualtricsSurveyModel->get_user_qualtrics_api_key($suereyInfo['id_users_last_sync'])
+                "X-API-TOKEN: " . $this->moduleQualtricsSurveyModel->get_user_qualtrics_api_key($surveyInfo['id_users_last_sync'])
             )
         );
         $result = ModuleQualtricsSurveyModel::execute_curl_call($data);
@@ -1456,7 +1458,7 @@ class CallbackQualtrics extends BaseCallback
      * @param object $survey_response_data
      * The survey data comming from Qualtrics with the web service
      */
-    private function save_qualtrics_response($suereyInfo, $survey_response_data)
+    private function save_qualtrics_response($surveyInfo, $survey_response_data)
     {
         $user_id = 1; //guest
         if (isset($survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
@@ -1467,9 +1469,9 @@ class CallbackQualtrics extends BaseCallback
             "responseId" => $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE],
             "id_users" => $user_id
         );
-        if ($suereyInfo['save_data']) {
+        if ($surveyInfo['save_data']) {
             // save the data only if it is enabled
-            $data = $this->get_survey_response($suereyInfo, $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
+            $data = $this->get_survey_response($surveyInfo, $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
             foreach ($data['values'] as $key => $value) {
                 // get all the values
                 if (!is_array($value)) {
@@ -1483,7 +1485,7 @@ class CallbackQualtrics extends BaseCallback
                 }
             }
         }
-        $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $suereyInfo['qualtrics_survey_id'], $prep_data, array(
+        $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $surveyInfo['qualtrics_survey_id'], $prep_data, array(
             "responseId" => $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE],
             "id_users" => $user_id
         ));

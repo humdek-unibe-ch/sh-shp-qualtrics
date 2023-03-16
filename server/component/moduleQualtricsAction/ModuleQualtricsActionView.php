@@ -797,7 +797,7 @@ class ModuleQualtricsActionView extends ModuleQualtricsView
      */
     public function output_side_buttons()
     {
-        if ($this->aid || $this->mode == INSERT) {
+        if ($this->aid) {
             $backToProject = new BaseStyleComponent("button", array(
                 "label" => "Back to actions",
                 "url" => $this->model->get_link_url("moduleQualtricsAction"),
@@ -805,16 +805,7 @@ class ModuleQualtricsActionView extends ModuleQualtricsView
                 "css" => "d-block mb-3",
             ));
             $backToProject->output_content();
-        } else {
-            // show add action button
-            $buttonAddAction = new BaseStyleComponent("button", array(
-                "label" => "Create Action",
-                "url" => $this->model->get_link_url("moduleQualtricsAction", array("mode" => INSERT)),
-                "type" => "secondary",
-                "css" => "d-block mb-3",
-            ));
-            $buttonAddAction->output_content();
-        }
+        } 
     }
 
     /**

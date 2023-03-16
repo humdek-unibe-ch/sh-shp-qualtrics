@@ -61,6 +61,11 @@ CALL add_foreign_key('qualtricsSurveys', 'qualtricsSurveys_fk_id_users_last_sync
 
 CALL add_table_column('qualtricsSurveys', 'save_data', "INT(11) DEFAULT '0'");
 
+-- remove the option to insert action in the legacy quealtrics method
+UPDATE pages
+SET url = '/admin/qualtrics/action/[select|update|delete:mode]?/[i:aid]?'
+WHERE keyword = 'moduleQualtricsAction';
+
 DROP VIEW IF EXISTS view_qualtricsActions;
 CREATE VIEW view_qualtricsActions
 AS

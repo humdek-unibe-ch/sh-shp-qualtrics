@@ -13,6 +13,7 @@
  - add `publish` survey functionality
  - remove the functionality to create user form Qualtrics survey
  - use `global_values` for translation
+ - remove `create action` - now all actions are scheduled by the universal `form action`
 
 # v1.2.1
 ### Bugfix
