@@ -4,14 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <?php
-require_once __DIR__ . "/../../../../../component/BaseModel.php";
+require_once __DIR__ . "/../moduleQualtrics/ModuleQualtricsModel.php";
 require_once __DIR__ . "/qualtrics_api_templates.php";
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
  */
-class ModuleQualtricsSurveyModel extends BaseModel
+class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
 {
 
     /* Constants ************************************************/

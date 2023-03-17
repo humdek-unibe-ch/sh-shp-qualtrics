@@ -26,4 +26,16 @@ class ModuleQualtricsModel extends BaseModel
         parent::__construct($services);
     }
 
+    /**
+     * Check if the qualtricsActions table exists and return true of exists for some legacy projects
+     * @return bool
+     * Return if the table qualtricsActions exists
+     */
+    public function qualtrics_actions_exists(){
+        $res = $this->db->query_db_first("SELECT COUNT(*) as res FROM information_schema.`tables`
+                                WHERE table_schema = DATABASE()
+                                AND `table_name` = 'qualtricsActions'");
+        return $res['res'] > 0;
+    }
+
 }

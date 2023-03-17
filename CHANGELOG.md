@@ -1,4 +1,4 @@
-# v1.3.0 - Require Selfhelp 5.11.0+ (Unpublished)
+# v2.0.0 - Require Selfhelp 6.0.0+
 ### Bugfix
  - Fix new project error (php8)
 

@@ -64,11 +64,13 @@ class ModuleQualtricsView extends BaseView
             "active" => $title == "Surveys" ? "active" : "",
             "url" => $this->model->get_link_url("moduleQualtricsSurvey")
         );
-        $res[] = array(
-            "title" => "Actions",
-            "active" => $title == "Actions" ? "active" : "",
-            "url" => $this->model->get_link_url("moduleQualtricsAction")
-        );
+        if($this->model->qualtrics_actions_exists()){
+            $res[] = array(
+                "title" => "Actions",
+                "active" => $title == "Actions" ? "active" : "",
+                "url" => $this->model->get_link_url("moduleQualtricsAction")
+            );
+        }
         $navbar = new BaseStyleComponent("navigationBar", array(
             "items" => $res,
             "css" => "navbar-light bg-light"

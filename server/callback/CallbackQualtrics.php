@@ -120,6 +120,19 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
+     * Check if the project is a legacy qualtrics project 
+     * @return bool
+     * Return true if the project is legacy
+     */
+    private function is_legacy()
+    {
+        $res = $this->db->query_db_first("SELECT COUNT(*) as res FROM information_schema.`tables`
+                                        WHERE table_schema = DATABASE()
+                                        AND `table_name` = 'qualtricsActions'");
+        return $res['res'] > 0;
+    }
+
+    /**
      * Get the scheduled reminders for the user and this survey
      * @param int $uid 
      * user_id
@@ -130,17 +143,22 @@ class CallbackQualtrics extends BaseCallback
      */
     private function get_scheduled_reminders($uid, $qualtrics_survey_id)
     {
-        return $this->db->query_db(
-            'SELECT id_scheduledJobs 
+
+        if ($this->is_legacy()) {
+            return $this->db->query_db(
+                'SELECT id_scheduledJobs 
             FROM view_qualtricsReminders 
             WHERE `user_id` = :uid AND qualtrics_survey_id = :sid AND status_code = :status
             AND (valid_till IS NULL OR (NOW() BETWEEN session_start_date AND valid_till))',
-            array(
-                ":uid" => $uid,
-                ":sid" => $qualtrics_survey_id,
-                ":status" => scheduledJobsStatus_queued
-            )
-        );
+                array(
+                    ":uid" => $uid,
+                    ":sid" => $qualtrics_survey_id,
+                    ":status" => scheduledJobsStatus_queued
+                )
+            );
+        } else {
+            return array();
+        }
     }
 
     /**
@@ -1299,8 +1317,10 @@ class CallbackQualtrics extends BaseCallback
                         if ($inserted_id > 0) {
                             //successfully inserted survey response
                             $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was inserted.";
-                            $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id);
-                            $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
+                            if ($this->is_legacy()) {
+                                $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id);
+                                $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
+                            }
                         } else {
                             //something went wrong; survey response was not inserted
                             $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not inserted.";
@@ -1317,8 +1337,10 @@ class CallbackQualtrics extends BaseCallback
                         if ($update_id > 0) {
                             //successfully updated survey response
                             $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
-                            $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id); //legacy actions
-                            $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
+                            if ($this->is_legacy()) {
+                                $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id); //legacy actions
+                                $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
+                            }
                         } else {
                             //something went wrong; survey resposne was not updated
                             $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not updated.";
