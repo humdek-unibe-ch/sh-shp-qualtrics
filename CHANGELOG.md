@@ -1,3 +1,6 @@
+# v2.0.1
+ - add transaction log when the survey data is pulled
+
 # v2.0.0 - Require Selfhelp 6.0.0+
 ### Bugfix
  - Fix new project error (php8)

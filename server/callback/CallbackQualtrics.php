@@ -1494,16 +1494,21 @@ class CallbackQualtrics extends BaseCallback
         if ($surveyInfo['save_data']) {
             // save the data only if it is enabled
             $data = $this->get_survey_response($surveyInfo, $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-            foreach ($data['values'] as $key => $value) {
-                // get all the values
-                if (!is_array($value)) {
-                    $prep_data[$key] = $value;
+            $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, $user_id, $this->transaction::TABLE_uploadTables, null, false, $data);
+            if (isset($data['values'])) {
+                foreach ($data['values'] as $key => $value) {
+                    // get all the values
+                    if (!is_array($value)) {
+                        $prep_data[$key] = $value;
+                    }
                 }
             }
-            foreach ($data['labels'] as $key => $value) {
-                // get all the labels
-                if (!is_array($value)) {
-                    $prep_data[$key . '_label'] = $value;
+            if (isset($data['labels'])) {
+                foreach ($data['labels'] as $key => $value) {
+                    // get all the labels
+                    if (!is_array($value)) {
+                        $prep_data[$key . '_label'] = $value;
+                    }
                 }
             }
         }
