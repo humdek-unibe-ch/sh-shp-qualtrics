@@ -1447,12 +1447,17 @@ class CallbackQualtrics extends BaseCallback
     {
         $url = str_replace(':survey_api_id', $surveyInfo['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_RESPONSE);
         $url = str_replace(':survey_response', $survey_response, $url);
+        $qualtrics_api_key = $this->moduleQualtricsSurveyModel->get_user_qualtrics_api_key($surveyInfo['id_users_last_sync']);
+        if (!$qualtrics_api_key || $qualtrics_api_key == '') {
+            $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, null, null, false, "no Qualtrics API key");
+            return false;
+        }
         $data = array(
             "request_type" => "GET",
             "URL" => $url,
             "header" => array(
                 "Content-Type: application/json",
-                "X-API-TOKEN: " . $this->moduleQualtricsSurveyModel->get_user_qualtrics_api_key($surveyInfo['id_users_last_sync'])
+                "X-API-TOKEN: " . $qualtrics_api_key
             )
         );
         $result = ModuleQualtricsSurveyModel::execute_curl_call($data);
