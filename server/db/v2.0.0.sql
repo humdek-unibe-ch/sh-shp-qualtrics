@@ -172,8 +172,8 @@ BEGIN
                     DROP TABLE IF EXISTS qualtricsReminders;
                     DROP TABLE IF EXISTS scheduledJobs_qualtricsActions;
                     DROP TABLE IF EXISTS qualtricsActions;
-                    DROP VIEW IF EXISTS view_qualtricsreminders;
-                    DROP VIEW IF EXISTS view_qualtricsactions;     
+                    DROP VIEW IF EXISTS view_qualtricsReminders;
+                    DROP VIEW IF EXISTS view_qualtricsActions;     
                     DELETE FROM pages
                     WHERE keyword = 'moduleQualtricsAction';
 			END IF;
