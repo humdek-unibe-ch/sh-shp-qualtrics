@@ -996,19 +996,6 @@ class CallbackQualtrics extends BaseCallback
     }
 
     /**
-     * Get qualtrics api key
-     * @param string $survey_id survey id
-     * @retval string return the api key
-     */
-    private function get_qualtrics_api($survey_id)
-    {
-        return $this->db->query_db_first('SELECT DISTINCT qualtrics_api
-                                                    FROM view_qualtricsActions
-                                                    WHERE qualtrics_survey_id = :qualtrics_survey_id
-                                                    LIMIT 0, 1;', array("qualtrics_survey_id" => $survey_id))['qualtrics_api'];
-    }
-
-    /**
      * Fill pdf form template with qualtrics embeded data. The name of the form's fields should be the same as the name of the embeded data fields
      *
      * @param string $function_name the

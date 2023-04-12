@@ -1073,7 +1073,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
     {
         $form_id = $this->user_input->get_form_id(QUALTRICS_SETTINGS, FORM_INTERNAL);
         if ($form_id) {
-            $user_qualtrics_api_key = $id_users ? $this->user_input->get_data($form_id, '', false, FORM_INTERNAL, $id_users)  : $this->user_input->get_data($form_id, '');
+            $user_qualtrics_api_key = $id_users ? $this->user_input->get_data($form_id, '', true, FORM_INTERNAL, $id_users)  : $this->user_input->get_data($form_id, '');
             return $user_qualtrics_api_key && isset($user_qualtrics_api_key[0][QUALTRICS_API]) ? $user_qualtrics_api_key[0][QUALTRICS_API] : "";
         }
         return "";
