@@ -57,6 +57,7 @@ class CallbackQualtrics extends BaseCallback
     public function __construct($services)
     {
         parent::__construct($services);
+        $services->get_db()->clear_cache();
         $this->services = $services;
         $this->moduleQualtricsSurveyModel = new ModuleQualtricsSurveyModel($this->services);
     }
