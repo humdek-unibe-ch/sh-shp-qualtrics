@@ -1,5 +1,8 @@
 # v2.0.2
+### Bugfix
  - add log when request is made for a survey response
+ - properly load the API key for the user who last synced the survey
+
 
 # v2.0.1
  - add transaction log when the survey data is pulled
