@@ -1452,6 +1452,7 @@ class CallbackQualtrics extends BaseCallback
             $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, null, null, false, "no Qualtrics API key");
             return false;
         }
+        $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, null, null, false, "Get survey: " . $surveyInfo['qualtrics_survey_id'] . " Response: " . $survey_response . " with API: " . $qualtrics_api_key);
         $data = array(
             "request_type" => "GET",
             "URL" => $url,

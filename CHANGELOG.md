@@ -1,3 +1,6 @@
+# v2.0.2
+ - add log when request is made for a survey response
+
 # v2.0.1
  - add transaction log when the survey data is pulled
 
