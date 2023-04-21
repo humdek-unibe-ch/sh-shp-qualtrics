@@ -114,7 +114,7 @@ BEGIN
     
 		CALL add_table_column('qualtricsSurveys', 'id_qualtricsProjects', 'INT(10) UNSIGNED ZEROFILL NOT NULL');
 		UPDATE qualtricsSurveys
-		SET id_qualtricsProjects = (SELECT project_id FROM view_qualtricsActions WHERE survey_id = qualtricsSurveys.id LIMIT 0, 1)
+		SET id_qualtricsProjects = COALESCE((SELECT project_id FROM view_qualtricsActions WHERE survey_id = qualtricsSurveys.id LIMIT 0, 1), 0)
 		WHERE id_qualtricsProjects = 0;
         
         -- unused surveys delete them

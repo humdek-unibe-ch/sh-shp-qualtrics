@@ -1,3 +1,7 @@
+# v2.0.3
+### Bugfix
+ - fix `v2.0.0.sql` script when it fails in some rare case when there are Qualtrics surveys created but never used and are not attached to actions
+
 # v2.0.2
 ### Bugfix
  - add log when request is made for a survey response
