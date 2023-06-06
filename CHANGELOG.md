@@ -1,3 +1,6 @@
+# v2.0.4 Unpublished
+- #357 - is_multiple in select does not save data properly.
+
 # v2.0.3
 ### Bugfix
  - fix `v2.0.0.sql` script when it fails in some rare case when there are Qualtrics surveys created but never used and are not attached to actions

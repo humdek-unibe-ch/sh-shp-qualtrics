@@ -159,7 +159,7 @@ class ModuleQualtricsActionView extends ModuleQualtricsView
                 )),
                 new BaseStyleComponent("select", array(
                     "label" => "Target group(s)",
-                    "name" => "schedule_info[target_groups][]",
+                    "name" => "schedule_info[target_groups]",
                     "id" => "targetGroups",
                     "is_multiple" => true,
                     "is_required" => false,
@@ -668,7 +668,7 @@ class ModuleQualtricsActionView extends ModuleQualtricsView
                         )),
                         new BaseStyleComponent("select", array(
                             "label" => "For group(s)",
-                            "name" => "id_groups[]",
+                            "name" => "id_groups",
                             "is_multiple" => true,
                             "is_required" => false,
                             "live_search" => true,
@@ -687,7 +687,7 @@ class ModuleQualtricsActionView extends ModuleQualtricsView
                         new BaseStyleComponent("select", array(
                             "label" => "Additional functions",
                             "is_required" => false,
-                            "name" => "id_functions[]",
+                            "name" => "id_functions",
                             "is_multiple" => true,
                             "live_search" => true,
                             "value" => $this->action && $this->action['id_functions'] ?  explode(';', $this->action['id_functions']) : '',
