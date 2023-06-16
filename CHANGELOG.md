@@ -1,4 +1,4 @@
-# v2.0.4 Unpublished
+# v2.0.4
 - #357 - is_multiple in select does not save data properly.
 
 # v2.0.3
