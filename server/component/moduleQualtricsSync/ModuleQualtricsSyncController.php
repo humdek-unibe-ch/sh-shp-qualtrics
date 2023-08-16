@@ -33,7 +33,11 @@ class ModuleQualtricsSyncController extends BaseController
                 return;
             }
             if ($sid) {
-                $this->syncSurvey($sid);
+                if ($_POST['type'] == 'qualtricsPullUnsavedData') {
+                    $this->pullUnsavedData($sid);
+                } else {
+                    $this->syncSurvey($sid);
+                }
             } else {
                 $this->syncSurveys();
             }
@@ -110,6 +114,24 @@ class ModuleQualtricsSyncController extends BaseController
     private function publishSurvey($survey)
     {
         $res = $this->model->publishSurvey($survey);
+        if ($res['result']) {
+            $this->success = true;
+            $this->success_msgs[] = 'Survey ' . $survey['name'] . ': ' . $res['description'];
+        } else {
+            $this->fail = true;
+            $this->error_msgs[] = $res['description'];
+        }
+    }
+
+    private function pullUnsavedData($sid)
+    {
+        $survey = $this->model->get_survey($sid);
+        if (!$survey) {
+            $this->fail = true;
+            $this->error_msgs[] = 'No survey';
+            return;
+        }
+        $res = $this->model->pullUnsavedData($survey);
         if ($res['result']) {
             $this->success = true;
             $this->success_msgs[] = 'Survey ' . $survey['name'] . ': ' . $res['description'];

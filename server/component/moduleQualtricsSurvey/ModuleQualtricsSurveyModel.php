@@ -22,6 +22,9 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
     const QUALTRICS_API_GET_SET_SURVEY_OPTIONS = 'https://eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/options';
     const QUALTRICS_API_CREATE_CONTACT = 'https://eu.qualtrics.com/API/v3/mailinglists/:api_mailing_group_id/contacts';
     const QUALTRICS_API_PUBLISH_SURVEY = 'https://eu.qualtrics.com/API/v3/survey-definitions/:survey_api_id/versions';
+    const QUALTRICS_API_POST_START_EXPORT_SURVEY = 'https://eu.qualtrics.com/API/v3/surveys/:survey_api_id/export-responses';
+    const QUALTRICS_API_GET_CHECK_EXPORT_STATUS = 'https://eu.qualtrics.com/API/v3/surveys/:survey_api_id/export-responses/:export_id';
+    const QUALTRICS_API_GET_EXPORTED_SURVEY = 'https://eu.qualtrics.com/API/v3/surveys/:survey_api_id/export-responses/:file_id/file';
 
     /* Qualtrics flow types */
     const FLOW_TYPE_EMBEDDED_DATA = 'EmbeddedData';
@@ -76,7 +79,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
 
     /**
      * PRIVATE METHODS *************************************************************************************************************
-     */    
+     */
 
     /**
      * Return Qualtrics headers
@@ -104,7 +107,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
         $data = array(
             "request_type" => "GET",
             "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_FLOW),
-             "header" => array(
+            "header" => array(
                 "Content-Type: application/json",
                 "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
             )
@@ -128,7 +131,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
         $data = array(
             "request_type" => "GET",
             "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_OPTIONS),
-             "header" => array(
+            "header" => array(
                 "Content-Type: application/json",
                 "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
             )
@@ -176,7 +179,8 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
     {
         $res = array(
             "result" => $result,
-            "description" => '[' . date('h:i:s') . '] ' . $text
+            "description" => '[' . date('h:i:s') . '] ' . (is_string($text) ? $text : ''),
+            "data" => $text
         );
         return $res;
     }
@@ -215,7 +219,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
             "request_type" => "PUT",
             "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_FLOW),
             "post_params" => json_encode($flow),
-             "header" => array(
+            "header" => array(
                 "Content-Type: application/json",
                 "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
             )
@@ -244,7 +248,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
             "request_type" => "PUT",
             "URL" => str_replace(':survey_api_id', $survey_api_id, ModuleQualtricsSurveyModel::QUALTRICS_API_GET_SET_SURVEY_OPTIONS),
             "post_params" => json_encode($options),
-             "header" => array(
+            "header" => array(
                 "Content-Type: application/json",
                 "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
             )
@@ -916,6 +920,160 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
     }
 
     /**
+     * Start Qualtrics export
+     * @param array $survey
+     * The survey data
+     * @return object
+     * Return object with the result and description 
+     */
+    private function startQualtricsExport($survey)
+    {
+        $post_params = array(
+            "format" => "json",
+            "compress" => false
+        );
+        $data = array(
+            "request_type" => "POST",
+            "URL" => str_replace(':survey_api_id', $survey['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_POST_START_EXPORT_SURVEY),
+            "post_params" => json_encode($post_params),
+            "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
+            )
+        );
+        $startExport = $this->execute_curl_call($data);
+        if (isset($publishResult['meta']['error'])) {
+            return $this->return_info(false, $publishResult['meta']['error']['errorMessage']);
+        } else {
+            return $this->return_info(true, $startExport);
+        }
+    }
+
+    /**
+     * Check the export status and once ready return the file id
+     * @param string $export_id
+     * The export id that was queued with start export
+     * @param array $survey
+     * The survey data
+     * @return object
+     * Return object with the result and description 
+     */
+    private function getExportFileId($export_id, $survey)
+    {
+        $url = str_replace(':survey_api_id', $survey['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_GET_CHECK_EXPORT_STATUS);
+        $url = str_replace(':export_id', $export_id, $url);
+        $data = array(
+            "request_type" => "GET",
+            "URL" => $url,
+            "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
+            )
+        );
+        $exportStatus = $this->execute_curl_call($data);
+        if (isset($exportStatus['meta']['error'])) {
+            return $this->return_info(false, $exportStatus['meta']['error']['errorMessage']);
+        } else {
+            if ($exportStatus['result']['status'] == 'inProgress') {
+                // recursive until it is finished
+                usleep(500 * 1000); // Sleep for 500 milliseconds
+                return $this->getExportFileId($export_id, $survey);
+            } else {
+                return $this->return_info(true, $exportStatus['result']);
+            }
+        }
+    }
+
+    /**
+     * Check the export status and once ready return the file id
+     * @param string $file_id
+     * The file id send form qualtrics
+     * @param array $survey
+     * The survey data
+     * @return object
+     * Return object with the result and description 
+     */
+    private function getSurveyFile($file_id, $survey)
+    {
+        $url = str_replace(':survey_api_id', $survey['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_GET_EXPORTED_SURVEY);
+        $url = str_replace(':file_id', $file_id, $url);
+        $data = array(
+            "request_type" => "GET",
+            "URL" => $url,
+            "header" => array(
+                "Content-Type: application/json",
+                "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
+            )
+        );
+        $surveyFile = $this->execute_curl_call($data);
+        if (isset($surveyFile['meta']['error'])) {
+            return $this->return_info(false, $surveyFile['meta']['error']['errorMessage']);
+        } else {
+            return $this->return_info(true, $surveyFile['responses']);
+        }
+    }
+
+    /**
+     * Check if the response id already exists
+     * @param array $all_records_from_survey
+     * All the records form the survey
+     * @param string $response_id
+     * The response id
+     * @return boolean
+     * Return the result
+     */
+    private function does_response_exists($all_records_from_survey, $response_id)
+    {
+        foreach ($all_records_from_survey as $subArray) {
+            if (isset($subArray['responseId']) && $subArray['responseId'] == $response_id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Save the pulled data that is not already saved
+     * @param array $survey
+     * The survey info
+     * @param array $surveyData
+     * The survey data that should be added
+     */
+    private function save_pulled_data($survey, $surveyData)
+    {
+        try {
+            $this->db->begin_transaction();
+            $id_table = $this->user_input->get_form_id($survey['qualtrics_survey_id'], FORM_EXTERNAL);
+            if (!$id_table) {
+                return $this->return_info(false, "The table " . $survey['qualtrics_survey_id'] . ' does not exists');
+            }
+            $all_records_from_survey = $this->user_input->get_data($id_table, '', false, FORM_EXTERNAL);
+            foreach ($surveyData as $key => $surveyResponse) {
+                if (isset($surveyResponse['values']['code'])) {
+                    $user_id = $this->getUserId($surveyResponse['values']['code']);
+                    if ($user_id > 0) {
+                        // the user still exists
+                        if (!$this->does_response_exists($all_records_from_survey, $surveyResponse['responseId'])) {
+                            // the responseId is not saved
+                            $prep_data = array(
+                                "responseId" => $surveyResponse['responseId'],
+                                "id_users" => $user_id
+                            );
+                            $prep_data = ModuleQualtricsSurveyModel::prepare_qualtrics_data_for_save($prep_data, $surveyResponse);
+                            $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $survey['qualtrics_survey_id'], $prep_data);
+                        }
+                    }
+                }
+            }
+            $this->db->commit();
+            return $this->return_info(true, "The data was pulled successfully");
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return $this->return_info(false, "Error while saving the pulled data");
+        };
+    }
+
+    /**
      * Insert a new qualtrics survey to the DB.
      *
      * @param array $data
@@ -1019,7 +1177,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
         } else if ($survey['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
             $res2 = $this->sync_anonymous_survey($survey, $surveyFlow);
         }
-        if($res1['result'] && $res2['result']){
+        if ($res1['result'] && $res2['result']) {
             // sync was successful, set the last user who synced the survey. Later we will use this api key for pulling responses
             $this->db->update_by_ids(
                 "qualtricsSurveys",
@@ -1049,7 +1207,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
             "request_type" => "POST",
             "URL" => str_replace(':survey_api_id', $survey['qualtrics_survey_id'], ModuleQualtricsSurveyModel::QUALTRICS_API_PUBLISH_SURVEY),
             "post_params" => json_encode($post_params),
-             "header" => array(
+            "header" => array(
                 "Content-Type: application/json",
                 "X-API-TOKEN: " . $this->get_user_qualtrics_api_key()
             )
@@ -1061,6 +1219,33 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
             return $this->return_info(true, $survey['qualtrics_survey_id'] . ' was successfully published!');
         }
     }
+
+    /**
+     * Pull unsaved data from Qualtrics using qualtrics API
+     * @param array $survey
+     * The survey data
+     * @return object
+     * Return object with the result and description 
+     */
+    public function pullUnsavedData($survey)
+    {
+        $startExport = $this->startQualtricsExport($survey);
+        if ($startExport['result']) {
+            $export_id = $startExport['data']['result']['progressId'];
+        } else {
+            return $this->return_info(false, $startExport['description']);
+        }
+        $checkExportStatus = $this->getExportFileId($export_id, $survey);
+        if ($checkExportStatus['result']) {
+            $export_file_id = $checkExportStatus['data']['fileId'];
+        } else {
+            return $this->return_info(false, $checkExportStatus['description']);
+        }
+        $surveyData = $this->getSurveyFile($export_file_id, $survey);
+        return $this->save_pulled_data($survey, $surveyData['data']);
+    }
+
+
 
     /**
      * Get the user qualtrics api key
@@ -1077,5 +1262,51 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
             return $user_qualtrics_api_key && isset($user_qualtrics_api_key[0][QUALTRICS_API]) ? $user_qualtrics_api_key[0][QUALTRICS_API] : "";
         }
         return "";
+    }
+
+    public static function prepare_qualtrics_data_for_save($prep_data, $data)
+    {
+        if (isset($data['values'])) {
+            foreach ($data['values'] as $key => $value) {
+                // get all the values
+                if (!is_array($value)) {
+                    $prep_data[$key] = $value;
+                }
+            }
+        }
+        if (isset($data['labels'])) {
+            foreach ($data['labels'] as $key => $value) {
+                // get all the labels
+                if (!is_array($value)) {
+                    $prep_data[$key . '_label'] = $value;
+                }
+            }
+        }
+        return $prep_data;
+    }
+
+    /**
+     * Get the user id given a user code
+     *
+     * @param $code
+     *  The code for which a user is searched
+     * @retval $boolean
+     *  The user id on success, -1 on failure
+     */
+    public function getUserId($code)
+    {
+        $sql = "SELECT u.id AS id_users, id_languages, 
+                CASE
+                    WHEN u.name = 'admin' THEN 'admin'
+                    WHEN u.name = 'tpf' THEN 'tpf'    
+                    ELSE IFNULL(vc.code, '-') 
+                END AS code
+                FROM users AS u
+                LEFT JOIN validation_codes vc ON u.id = vc.id_users
+                WHERE u.intern <> 1 AND u.id_status > 0
+                AND code  = :code";
+        $res = $this->db->query_db_first($sql, array(':code' => $code));
+        $_SESSION['language'] = isset($res['id_languages']) && $res['id_languages'] > 1 ? $res['id_languages'] : LANGUAGE; //set the session language of this user in case we need it later
+        return  !isset($res['id_users']) ? -1 : $res['id_users'];
     }
 }

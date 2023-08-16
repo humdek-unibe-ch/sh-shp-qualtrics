@@ -338,6 +338,14 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                 "css" => "d-block mb-3",
             ));
             $syncAndPublishSurvey->output_content();
+            $pullUnsavedData = new BaseStyleComponent("button", array(
+                "id" => "pullUnsavedData",
+                "label" => "Pull Unsaved Data",
+                "url" => $this->model->get_link_url("moduleQualtricsSync", array("sid" => $this->sid)),
+                "type" => "secondary",
+                "css" => "d-block mb-3",
+            ));
+            $pullUnsavedData->output_content();
         } else {
             $syncSurveys = new BaseStyleComponent("button", array(
                 "id" => "syncQualtricsSurveys",

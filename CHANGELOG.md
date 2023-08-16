@@ -1,3 +1,6 @@
+# v2.0.5
+ - #363 - add option to pull unsaved data for the survey. The data is pulled only for existing users and responses that are not already saved.
+
 # v2.0.4
 - #357 - is_multiple in select does not save data properly.
 

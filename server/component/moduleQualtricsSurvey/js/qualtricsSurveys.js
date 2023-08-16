@@ -158,6 +158,27 @@ $(document).ready(function () {
         });
     });
 
+    //confirmation for pull unsaved data
+    var qualtricsPullDataButton = $('.style-section-pullUnsavedData').first();
+    var hrefSingleSurvey = $(qualtricsPullDataButton).attr('href');
+    qualtricsPullDataButton.click(function (e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Qualtrics Pull Unsaved Data',
+            content: 'Are you sure that you want to pull all data that is not already saved? It will pull the data only for existing users.',
+            buttons: {
+                confirm: function () {                    
+                    $(qualtricsPullDataButton).attr('href', '#');
+                    event.stopPropagation();
+                    $.redirectPost(hrefSingleSurvey, { mode: 'select', type: 'qualtricsPullUnsavedData' });
+                },
+                cancel: function () {
+
+                }
+            }
+        });
+    });
+
     //confirmation for Qualtrics sync for all surveys
     var qualtricsSycnButton = $('.style-section-syncQualtricsSurveys').first();
     qualtricsSycnButton.click(function (e) {

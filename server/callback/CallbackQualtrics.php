@@ -59,32 +59,7 @@ class CallbackQualtrics extends BaseCallback
         parent::__construct($services);
         $this->services = $services;
         $this->moduleQualtricsSurveyModel = new ModuleQualtricsSurveyModel($this->services);
-    }
-
-    /**
-     * Get the user id given a user code
-     *
-     * @param $code
-     *  The code for which a user is searched
-     * @retval $boolean
-     *  The user id on success, -1 on failure
-     */
-    private function getUserId($code)
-    {
-        $sql = "SELECT u.id AS id_users, id_languages, 
-                CASE
-                    WHEN u.name = 'admin' THEN 'admin'
-                    WHEN u.name = 'tpf' THEN 'tpf'    
-                    ELSE IFNULL(vc.code, '-') 
-                END AS code
-                FROM users AS u
-                LEFT JOIN validation_codes vc ON u.id = vc.id_users
-                WHERE u.intern <> 1 AND u.id_status > 0
-                AND code  = :code";
-        $res = $this->db->query_db_first($sql, array(':code' => $code));
-        $_SESSION['language'] = isset($res['id_languages']) && $res['id_languages'] > 1 ? $res['id_languages'] : LANGUAGE; //set the session language of this user in case we need it later
-        return  !isset($res['id_users']) ? -1 : $res['id_users'];
-    }
+    }    
 
     /**
      * Get survey info
@@ -1296,7 +1271,7 @@ class CallbackQualtrics extends BaseCallback
                 // anonymous survey, no user
                 $result = array_merge($result, $this->check_functions_from_actions($data));
             } else {
-                $user_id = $this->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
+                $user_id = $this->moduleQualtricsSurveyModel->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
                 if ($user_id > 0) {
                     if ($data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_started) {
                         //insert survey response
@@ -1366,7 +1341,7 @@ class CallbackQualtrics extends BaseCallback
         $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_set_group);
         if ($result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
             //validation passed; try to execute
-            $user_id = $this->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
+            $user_id = $this->moduleQualtricsSurveyModel->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
             if ($user_id > 0) {
                 // set group for user
                 if ($this->assignUserToGroup($result['groupId'], $user_id)) {
@@ -1408,7 +1383,7 @@ class CallbackQualtrics extends BaseCallback
         $result = $this->validate_callback($data, CallbackQualtrics::VALIDATION_save_data);
         if ($result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
             //validation passed; try to execute
-            $data['id_users'] = $this->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
+            $data['id_users'] = $this->moduleQualtricsSurveyModel->getUserId($data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
             $fields = json_decode($data[ModuleQualtricsSurveyModel::QUALTRICS_SAVE_DATA]);
             unset($data[ModuleQualtricsSurveyModel::QUALTRICS_SAVE_DATA]);
             foreach ($fields as $key => $field) {
@@ -1478,7 +1453,7 @@ class CallbackQualtrics extends BaseCallback
         $user_id = 1; //guest
         if (isset($survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE])) {
             // it is not anonymous, get the user id
-            $user_id = $this->getUserId($survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
+            $user_id = $this->moduleQualtricsSurveyModel->getUserId($survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_PARTICIPANT_VARIABLE]);
         }
         $prep_data = array(
             "responseId" => $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE],
@@ -1488,22 +1463,7 @@ class CallbackQualtrics extends BaseCallback
             // save the data only if it is enabled
             $data = $this->get_survey_response($surveyInfo, $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
             $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, $user_id, $this->transaction::TABLE_uploadTables, null, false, $data);
-            if (isset($data['values'])) {
-                foreach ($data['values'] as $key => $value) {
-                    // get all the values
-                    if (!is_array($value)) {
-                        $prep_data[$key] = $value;
-                    }
-                }
-            }
-            if (isset($data['labels'])) {
-                foreach ($data['labels'] as $key => $value) {
-                    // get all the labels
-                    if (!is_array($value)) {
-                        $prep_data[$key . '_label'] = $value;
-                    }
-                }
-            }
+            $prep_data = ModuleQualtricsSurveyModel::prepare_qualtrics_data_for_save($prep_data, $data);
         }
         $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $surveyInfo['qualtrics_survey_id'], $prep_data, array(
             "responseId" => $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE],
