@@ -1,3 +1,6 @@
+# v2.0.6
+ - build min js and css files
+
 # v2.0.5
  - #363 - add option to pull unsaved data for the survey. The data is pulled only for existing users and responses that are not already saved.
 
