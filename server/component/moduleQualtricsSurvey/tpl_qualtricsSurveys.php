@@ -22,6 +22,7 @@
                     <th scope="col">Project</th>
                     <th scope="col">Survey Type</th>
                     <th scope="col">Save data</th>
+                    <th scope="col">Save labels data</th>
                     <th scope="col">Group variable</th>
                     <th scope="col">Survey Description</th>
                 </tr>

@@ -1,3 +1,6 @@
+# v2.1.0
+ - add option `save_labels_data` when a survey is saved in SelfHelp. By default this is disabled. (MySQL InnoDB can have maximum of 1017 columns). The labels multiplied the amount of the columns by 2
+
 # v2.0.6
  - build min js and css files
 

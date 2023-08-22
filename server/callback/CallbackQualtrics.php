@@ -1463,7 +1463,7 @@ class CallbackQualtrics extends BaseCallback
             // save the data only if it is enabled
             $data = $this->get_survey_response($surveyInfo, $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
             $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, $user_id, $this->transaction::TABLE_uploadTables, null, false, $data);
-            $prep_data = ModuleQualtricsSurveyModel::prepare_qualtrics_data_for_save($prep_data, $data);
+            $prep_data = ModuleQualtricsSurveyModel::prepare_qualtrics_data_for_save($prep_data, $data, $surveyInfo['save_labels_data']);
         }
         $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $surveyInfo['qualtrics_survey_id'], $prep_data, array(
             "responseId" => $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE],

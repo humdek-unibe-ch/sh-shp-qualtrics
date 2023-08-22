@@ -10,6 +10,7 @@
     <td><?php echo $survey['project_name']; ?></td>
     <td><?php echo $survey['survey_type']; ?></td>
     <td><?php echo $survey['save_data']; ?></td>
+    <td><?php echo $survey['save_labels_data']; ?></td>
     <td><?php echo $survey['group_variable']; ?></td>
     <td><?php echo $survey['description']; ?></td>
 </tr>

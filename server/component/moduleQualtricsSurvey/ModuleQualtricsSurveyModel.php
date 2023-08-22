@@ -1059,7 +1059,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
                                 "responseId" => $surveyResponse['responseId'],
                                 "id_users" => $user_id
                             );
-                            $prep_data = ModuleQualtricsSurveyModel::prepare_qualtrics_data_for_save($prep_data, $surveyResponse);
+                            $prep_data = ModuleQualtricsSurveyModel::prepare_qualtrics_data_for_save($prep_data, $surveyResponse, $survey['save_labels_data']);
                             $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $survey['qualtrics_survey_id'], $prep_data);
                         }
                     }
@@ -1115,7 +1115,8 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
                 "id_qualtricsProjects" => $data['id_qualtricsProjects'],
                 "config" => $data['config'],
                 "group_variable" => isset($data['group_variable']) ? 1 : 0,
-                "save_data" => isset($data['save_data']) ? 1 : 0
+                "save_data" => isset($data['save_data']) ? 1 : 0,
+                "save_labels_data" => isset($data['save_labels_data']) ? 1 : 0
             ),
             array('id' => $data['id'])
         );
@@ -1264,7 +1265,16 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
         return "";
     }
 
-    public static function prepare_qualtrics_data_for_save($prep_data, $data)
+    /**
+     * Prepare the Qualtrics data to be inserted in upload table
+     * @param array $prep_data
+     * The array with the prepared data
+     * @param object $data
+     * The quatrics data
+     * @param boolean $save_labels_data
+     * if enabled we will save the labels data too
+     */
+    public static function prepare_qualtrics_data_for_save($prep_data, $data, $save_labels_data)
     {
         if (isset($data['values'])) {
             foreach ($data['values'] as $key => $value) {
@@ -1274,11 +1284,13 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
                 }
             }
         }
-        if (isset($data['labels'])) {
-            foreach ($data['labels'] as $key => $value) {
-                // get all the labels
-                if (!is_array($value)) {
-                    $prep_data[$key . '_label'] = $value;
+        if ($save_labels_data) {
+            if (isset($data['labels'])) {
+                foreach ($data['labels'] as $key => $value) {
+                    // get all the labels
+                    if (!is_array($value)) {
+                        $prep_data[$key . '_label'] = $value;
+                    }
                 }
             }
         }
