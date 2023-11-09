@@ -1064,11 +1064,11 @@ class CallbackQualtrics extends BaseCallback
         foreach ($actions as $action) {
             if ($user_id > 0 && $this->is_user_in_group($user_id, $action['id_groups'])) {
                 // Special Functions code here if it is not related to notifications or reminders
-                // if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) !== false) {
-                //     // WORKWELL evaluate strenghts function
-                //     $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
-                //     $result[] = $this->workwell_evaluate_strenghts($data, $user_id);
-                // }
+                if (strpos($action['functions_code'], qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts) !== false) {
+                    // WORKWELL evaluate strenghts function
+                    $result[] = qualtricsProjectActionAdditionalFunction_workwell_evaluate_personal_strenghts;
+                    $result[] = $this->workwell_evaluate_strenghts($data, $user_id);
+                }
             }
             if ($action['survey_type_code'] === qualtricsSurveyTypes_anonymous) {
                 // anonymous survey
