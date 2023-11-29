@@ -1,3 +1,7 @@
+# v2.2.1
+ - remove `actionConfig` from the old Qulatrics `action`
+ - remove the legacy `actions` from Qualtrics tabs which was deprecated
+
 # v2.2.0
 - add field `redirect_at_end` to style `qualtricsSurvey`
 
