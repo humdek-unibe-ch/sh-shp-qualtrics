@@ -1,7 +1,8 @@
-# v2.2.1
- - remove `actionConfig` from the old Qulatrics `action`
+# v2.3.0 - Requires SelfHelp 6.6.0 (Unpublished)
+ - remove `actionConfig` from the old Qualtrics `action`
  - remove the legacy `actions` from Qualtrics tabs which was deprecated
  - remove `configBuilder` from `qualtricsSurvey`, it was deprecated
+ - remove field `jquery_builder_json`
 
 # v2.2.0
 - add field `redirect_at_end` to style `qualtricsSurvey`
