@@ -180,14 +180,6 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
                             "css" => "mb-3",
                             "placeholder" => "Enter survey description",
                         )),
-                        new BaseStyleComponent("QualtricsSurveyConfigBuilder", array(
-                            "label" => "Config:",
-                            "type_input" => "json",
-                            "name" => "config",
-                            "value" => $this->survey ? $this->survey['config'] : '',
-                            "css" => "mb-3 fixedHolder qualtricsSurveyConfig",
-                            "placeholder" => "Enter JSON configuration",
-                        )),
                         new BaseStyleComponent("input", array(
                             "type_input" => "hidden",
                             "name" => "id",
@@ -405,7 +397,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
     {
         if (empty($local)) {
             if (DEBUG) {
-                $local = array(__DIR__ . "/js/qualtricsSurveys.js", __DIR__ . "/../style/qualtricsSurveyConfigBuilder/js/qualtricsSurveyConfigBuilder.js");
+                $local = array(__DIR__ . "/js/qualtricsSurveys.js");
             } else {
                 $local = array(__DIR__ . "/../../../../qualtrics/js/ext/qualtrics.min.js?v=" . rtrim(shell_exec("git describe --tags")));
             }
@@ -424,7 +416,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
     {
         if (empty($local)) {
             if (DEBUG) {
-                $local = array(__DIR__ . "/../style/qualtricsSurveyConfigBuilder/css/qualtricsSurveyConfigBuilder.css");
+                $local = array();
             } else {
                 $local = array(__DIR__ . "/../../../../qualtrics/css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
             }
