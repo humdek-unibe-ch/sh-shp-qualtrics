@@ -1,4 +1,4 @@
-# v2.3.0 - Requires SelfHelp 6.6.0 (Unpublished)
+# v2.3.0 - Requires SelfHelp 6.6.0
  - remove `actionConfig` from the old Qualtrics `action`
  - remove the legacy `actions` from Qualtrics tabs which was deprecated
  - remove `configBuilder` from `qualtricsSurvey`, it was deprecated
