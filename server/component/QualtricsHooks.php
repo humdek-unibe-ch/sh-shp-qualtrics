@@ -145,5 +145,13 @@ class QualtricsHooks extends BaseHooks
         $res = $this->db->remove_by_fk('qualtricsSurveysResponses', 'id_users', $uid);
         return $res;
     }
+
+    /**
+     * Get the plugin version
+     */
+    public function get_plugin_db_version($plugin_name = 'qualtrics')
+    {
+        return parent::get_plugin_db_version($plugin_name);
+    }
 }
 ?>
