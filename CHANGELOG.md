@@ -1,3 +1,7 @@
+# v2.3.2
+### Bugfix
+ - fix loading path for minified files 
+
 # v2.3.1
 ### New Features
  - load plugin version using `BaseHook` class

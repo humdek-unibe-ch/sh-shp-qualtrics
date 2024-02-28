@@ -399,7 +399,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
             if (DEBUG) {
                 $local = array(__DIR__ . "/js/qualtricsSurveys.js");
             } else {
-                $local = array(__DIR__ . "/../../../../qualtrics/js/ext/qualtrics.min.js?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../js/ext/qualtrics.min.js?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_js_includes($local);
@@ -418,7 +418,7 @@ class ModuleQualtricsSurveyView extends ModuleQualtricsView
             if (DEBUG) {
                 $local = array();
             } else {
-                $local = array(__DIR__ . "/../../../../qualtrics/css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_css_includes($local);

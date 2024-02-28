@@ -137,7 +137,7 @@ class QualtricsSurveyView extends StyleView
             if (DEBUG) {
                 $local = array(__DIR__ . "/js/iframeResizer.min.js", __DIR__ . "/js/qualtricsSurvey.js");
             } else {
-                $local = array(__DIR__ . "/../../../../../qualtrics/js/ext/qualtrics.min.js?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../../js/ext/qualtrics.min.js?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_js_includes($local);
@@ -156,7 +156,7 @@ class QualtricsSurveyView extends StyleView
             if (DEBUG) {
                 $local = array(__DIR__ . "/css/qualtricsSurvey.css");
             } else {
-                $local = array(__DIR__ . "/../../../../../qualtrics/css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../../css/ext/qualtrics.min.css?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_css_includes($local);

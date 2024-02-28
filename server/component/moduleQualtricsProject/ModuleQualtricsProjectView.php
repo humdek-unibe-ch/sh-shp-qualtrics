@@ -284,7 +284,7 @@ class ModuleQualtricsProjectView extends ModuleQualtricsView
             if (DEBUG) {
                 $local = array(__DIR__ . "/js/qualtricsProjects.js");
             } else {
-                $local = array(__DIR__ . "/../../../../qualtrics/js/ext/qualtrics.min.js?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../js/ext/qualtrics.min.js?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_js_includes($local);
