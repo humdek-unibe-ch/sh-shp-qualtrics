@@ -1,3 +1,10 @@
+# v2.3.3
+### Bugfix
+ - fix Qualtrics survey creation 
+
+### New Features
+ - allow `camera` and `microphone` in the `iframe`
+
 # v2.3.2
 ### Bugfix
  - fix loading path for minified files 

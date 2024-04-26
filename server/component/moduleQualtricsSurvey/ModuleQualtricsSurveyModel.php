@@ -1089,7 +1089,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
             "qualtrics_survey_id" => $data['qualtrics_survey_id'],
             "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
             "id_qualtricsProjects" => $data['id_qualtricsProjects'],
-            "config" => $data['config'],
+            "config" => isset($data['config']) ? $data['config'] : '',
             "group_variable" => isset($data['group_variable']) ? 1 : 0,
             "save_data" => isset($data['save_data']) ? 1 : 0
         ));
