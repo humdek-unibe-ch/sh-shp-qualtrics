@@ -1083,16 +1083,25 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
      */
     public function insert_new_survey($data)
     {
-        return $this->db->insert("qualtricsSurveys", array(
-            "name" => $data['name'],
-            "description" => $data['description'],
-            "qualtrics_survey_id" => $data['qualtrics_survey_id'],
-            "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
-            "id_qualtricsProjects" => $data['id_qualtricsProjects'],
-            "config" => isset($data['config']) ? $data['config'] : '',
-            "group_variable" => isset($data['group_variable']) ? 1 : 0,
-            "save_data" => isset($data['save_data']) ? 1 : 0
-        ));
+        try {
+            $this->db->begin_transaction();
+            $this->set_dataTables_displayName($data['qualtrics_survey_id'], $data['name']);
+            $res = $this->db->insert("qualtricsSurveys", array(
+                "name" => $data['name'],
+                "description" => $data['description'],
+                "qualtrics_survey_id" => $data['qualtrics_survey_id'],
+                "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
+                "id_qualtricsProjects" => $data['id_qualtricsProjects'],
+                "config" => isset($data['config']) ? $data['config'] : '',
+                "group_variable" => isset($data['group_variable']) ? 1 : 0,
+                "save_data" => isset($data['save_data']) ? 1 : 0
+            ));
+            $this->db->commit();
+            return $res;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
     }
 
     /**
@@ -1105,21 +1114,30 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
      */
     public function update_survey($data)
     {
-        return $this->db->update_by_ids(
-            "qualtricsSurveys",
-            array(
-                "name" => $data['name'],
-                "description" => $data['description'],
-                "qualtrics_survey_id" => $data['qualtrics_survey_id'],
-                "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
-                "id_qualtricsProjects" => $data['id_qualtricsProjects'],
-                "config" => $data['config'],
-                "group_variable" => isset($data['group_variable']) ? 1 : 0,
-                "save_data" => isset($data['save_data']) ? 1 : 0,
-                "save_labels_data" => isset($data['save_labels_data']) ? 1 : 0
-            ),
-            array('id' => $data['id'])
-        );
+        try {
+            $this->db->begin_transaction();
+            $this->set_dataTables_displayName($data['qualtrics_survey_id'], $data['name']);
+            $res = $this->db->update_by_ids(
+                "qualtricsSurveys",
+                array(
+                    "name" => $data['name'],
+                    "description" => $data['description'],
+                    "qualtrics_survey_id" => $data['qualtrics_survey_id'],
+                    "id_qualtricsSurveyTypes" => $data['id_qualtricsSurveyTypes'],
+                    "id_qualtricsProjects" => $data['id_qualtricsProjects'],
+                    "config" => $data['config'] ?? "",
+                    "group_variable" => isset($data['group_variable']) ? 1 : 0,
+                    "save_data" => isset($data['save_data']) ? 1 : 0,
+                    "save_labels_data" => isset($data['save_labels_data']) ? 1 : 0
+                ),
+                array('id' => $data['id'])
+            );
+            $this->db->commit();
+            return $res;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            return false;
+        }
     }
 
     /**
