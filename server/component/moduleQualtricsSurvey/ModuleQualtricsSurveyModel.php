@@ -1043,11 +1043,11 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
     {
         try {
             $this->db->begin_transaction();
-            $id_table = $this->user_input->get_form_id($survey['qualtrics_survey_id'], FORM_EXTERNAL);
+            $id_table = $this->user_input->get_dataTable_id($survey['qualtrics_survey_id']);
             if (!$id_table) {
                 return $this->return_info(false, "The table " . $survey['qualtrics_survey_id'] . ' does not exists');
             }
-            $all_records_from_survey = $this->user_input->get_data($id_table, '', false, FORM_EXTERNAL);
+            $all_records_from_survey = $this->user_input->get_data($id_table, '', false);
             foreach ($surveyData as $key => $surveyResponse) {
                 if (isset($surveyResponse['values']['code'])) {
                     $user_id = $this->getUserId($surveyResponse['values']['code']);
@@ -1060,7 +1060,7 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
                                 "id_users" => $user_id
                             );
                             $prep_data = ModuleQualtricsSurveyModel::prepare_qualtrics_data_for_save($prep_data, $surveyResponse, $survey['save_labels_data']);
-                            $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $survey['qualtrics_survey_id'], $prep_data);
+                            $this->user_input->save_data(transactionBy_by_qualtrics_callback, $survey['qualtrics_survey_id'], $prep_data);
                         }
                     }
                 }
@@ -1257,9 +1257,9 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
      */
     public function get_user_qualtrics_api_key($id_users = null)
     {
-        $form_id = $this->user_input->get_form_id(QUALTRICS_SETTINGS, FORM_INTERNAL);
+        $form_id = $this->user_input->get_dataTable_id_by_displayName(QUALTRICS_SETTINGS);
         if ($form_id) {
-            $user_qualtrics_api_key = $id_users ? $this->user_input->get_data($form_id, '', true, FORM_INTERNAL, $id_users)  : $this->user_input->get_data($form_id, '');
+            $user_qualtrics_api_key = $id_users ? $this->user_input->get_data($form_id, '', true, $id_users)  : $this->user_input->get_data($form_id, '');
             return $user_qualtrics_api_key && isset($user_qualtrics_api_key[0][QUALTRICS_API]) ? $user_qualtrics_api_key[0][QUALTRICS_API] : "";
         }
         return "";

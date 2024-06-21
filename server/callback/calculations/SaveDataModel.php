@@ -50,11 +50,11 @@ class SaveDataModel extends BaseModel
     public function insert_into_db($data)
     {
         $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //suevey code id is used as table name
-        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_EXTERNAL);
+        $id_table = $this->services->get_user_input()->get_dataTable_id($table_name);
         if ($id_table) {
             // if table exist; check if the entry exist already; if the repsonse was delayed and qualtrics sent multiple callbacks
             $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
-            $entry = $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_EXTERNAL);
+            $entry = $this->services->get_user_input()->get_data($id_table, $filter, false);
             if ($entry) {
                 return "Response: " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . ' was already added to DB';
             }
@@ -65,7 +65,7 @@ class SaveDataModel extends BaseModel
             $this->db->begin_transaction();
             if (!$id_table) {
                 // does not exists yet; try to create it
-                $id_table = $this->db->insert("uploadTables", array(
+                $id_table = $this->db->insert("dataTables", array(
                     "name" => $table_name
                 ));
             }
@@ -73,31 +73,31 @@ class SaveDataModel extends BaseModel
                 $this->db->rollback();
                 return "postprocess: failed to create new data table";
             } else {
-                if ($this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, $this->transaction::TABLE_uploadTables, $id_table) === false) {
+                if ($this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, $this->transaction::TABLE_dataTables, $id_table) === false) {
                     $this->db->rollback();
                     return false;
                 }
-                $id_row = $this->db->insert("uploadRows", array(
-                    "id_uploadTables" => $id_table
+                $id_row = $this->db->insert("dataRows", array(
+                    "id_dataTables" => $id_table
                 ));
                 if (!$id_row) {
                     $this->db->rollback();
                     return "postprocess: failed to add table rows";
                 }
                 foreach ($data as $col => $value) {
-                    $id_col = $this->db->insert("uploadCols", array(
+                    $id_col = $this->db->insert("dataCols", array(
                         "name" => $col,
-                        "id_uploadTables" => $id_table
+                        "id_dataTables" => $id_table
                     ));
                     if (!$id_col) {
                         $this->db->rollback();
                         return "postprocess: failed to add table cols";
                     }
                     $res = $this->db->insert(
-                        "uploadCells",
+                        "dataCells",
                         array(
-                            "id_uploadRows" => $id_row,
-                            "id_uploadCols" => $id_col,
+                            "id_dataRows" => $id_row,
+                            "id_dataCols" => $id_col,
                             "value" => $value
                         )
                     );
@@ -111,7 +111,7 @@ class SaveDataModel extends BaseModel
             return 'Response for user : ' . $data['id_users'] . ' was successfully inserted in DB';
         } catch (Exception $e) {
             $this->db->rollback();
-            return 'Error while inserting records in the uploadTables';
+            return 'Error while inserting records in the dataTables';
         }
     }
 }

@@ -395,7 +395,7 @@ class BMZSportModel extends BaseModel
      */
     private function insert_into_db($data)
     {
-        $sql = "SELECT id FROM uploadTables WHERE name = :name";
+        $sql = "SELECT id FROM dataTables WHERE `name` = :name";
         $name = qualtricsProjectActionAdditionalFunction_bmz_evaluate_motive . '_' . $data['code'];
         $has_table = $this->db->query_db_first($sql, array(":name" => $name));
         if ($has_table) {
@@ -407,38 +407,38 @@ class BMZSportModel extends BaseModel
 
         try {
             $this->db->begin_transaction();
-            $id_table = $this->db->insert("uploadTables", array(
+            $id_table = $this->db->insert("dataTables", array(
                 "name" => $name
             ));
             if (!$id_table) {
                 $this->db->rollback();
                 return "postprocess: failed to create new data table";
             } else {
-                if ($this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, $this->transaction::TABLE_uploadTables, $id_table) === false) {
+                if ($this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, null, $this->transaction::TABLE_dataTables, $id_table) === false) {
                     $this->db->rollback();
                     return false;
                 }
-                $id_row = $this->db->insert("uploadRows", array(
-                    "id_uploadTables" => $id_table
+                $id_row = $this->db->insert("dataRows", array(
+                    "id_dataTables" => $id_table
                 ));
                 if (!$id_row) {
                     $this->db->rollback();
                     return "postprocess: failed to add table rows";
                 }
                 foreach ($data as $col => $value) {
-                    $id_col = $this->db->insert("uploadCols", array(
+                    $id_col = $this->db->insert("dataCols", array(
                         "name" => $col,
-                        "id_uploadTables" => $id_table
+                        "id_dataTables" => $id_table
                     ));
                     if (!$id_col) {
                         $this->db->rollback();
                         return "postprocess: failed to add table cols";
                     }
                     $res = $this->db->insert(
-                        "uploadCells",
+                        "dataCells",
                         array(
-                            "id_uploadRows" => $id_row,
-                            "id_uploadCols" => $id_col,
+                            "id_dataRows" => $id_row,
+                            "id_dataCols" => $id_col,
                             "value" => $value
                         )
                     );
@@ -467,7 +467,7 @@ class BMZSportModel extends BaseModel
      */
     private function pp_delete_asset_file_static($name)
     {
-        $res = $this->db->remove_by_fk("uploadTables", "name", $name);
+        $res = $this->db->remove_by_fk("dataTables", "name", $name);
         if (!$res) {
             return "postprocess: failed to remove old data values";
         }

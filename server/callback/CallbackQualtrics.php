@@ -59,7 +59,7 @@ class CallbackQualtrics extends BaseCallback
         parent::__construct($services);
         $this->services = $services;
         $this->moduleQualtricsSurveyModel = new ModuleQualtricsSurveyModel($this->services);
-    }    
+    }
 
     /**
      * Get survey info
@@ -180,22 +180,25 @@ class CallbackQualtrics extends BaseCallback
      *  qualtrics survey id
      * @param string $trigger_type
      *  trigger type
-     *  @retval array
+     *  @return array
      * return all actions for that survey with this trigger_type
      */
     private function get_actions($sid, $trigger_type)
     {
+        if (!$this->db->check_if_view_exists('view_qualtricsActions')) {
+            return array(); // return empty array the view does not exists; It was a legacy
+        }
         $sqlGetActions = "SELECT *
                 FROM view_qualtricsActions
                 WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type 
                 AND action_schedule_type <> 'Nothing'";
         return $this->db->query_db(
-            $sqlGetActions,
-            array(
-                "sid" => $sid,
-                "trigger_type" => $trigger_type
-            )
-        );
+                $sqlGetActions,
+                array(
+                    "sid" => $sid,
+                    "trigger_type" => $trigger_type
+                )
+            );
     }
 
     /**
@@ -205,11 +208,14 @@ class CallbackQualtrics extends BaseCallback
      *  qualtrics survey id
      * @param string $trigger_type
      *  trigger type
-     *  @retval array
+     *  @return array
      * return all actions for that survey with this trigger_type
      */
     private function get_actions_with_functions($sid, $trigger_type)
     {
+        if (!$this->db->check_if_view_exists('view_qualtricsActions')) {
+            return array(); // return empty array the view does not exists; It was a legacy
+        }
         $sqlGetActions = "SELECT *
                 FROM view_qualtricsActions
                 WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type AND functions IS NOT NULL";
@@ -389,9 +395,9 @@ class CallbackQualtrics extends BaseCallback
     private function get_survey_saved_data($data)
     {
         $table_name = $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]; //survey code id is used as table name
-        $id_table = $this->services->get_user_input()->get_form_id($table_name, FORM_EXTERNAL);
+        $id_table = $this->services->get_user_input()->get_dataTable_id($table_name);
         $filter = "AND " . ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE . " = '" . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . "'";
-        return $this->services->get_user_input()->get_data($id_table, $filter, false, FORM_EXTERNAL, null, true); // return db first
+        return $this->services->get_user_input()->get_data($id_table, $filter, false, null, true); // return db first
     }
 
     /**
@@ -1462,10 +1468,10 @@ class CallbackQualtrics extends BaseCallback
         if ($surveyInfo['save_data']) {
             // save the data only if it is enabled
             $data = $this->get_survey_response($surveyInfo, $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE]);
-            $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, $user_id, $this->transaction::TABLE_uploadTables, null, false, $data);
+            $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_qualtrics_callback, $user_id, $this->transaction::TABLE_dataTables, null, false, $data);
             $prep_data = ModuleQualtricsSurveyModel::prepare_qualtrics_data_for_save($prep_data, $data, $surveyInfo['save_labels_data']);
         }
-        $this->user_input->save_external_data(transactionBy_by_qualtrics_callback, $surveyInfo['qualtrics_survey_id'], $prep_data, array(
+        $this->user_input->save_data(transactionBy_by_qualtrics_callback, $surveyInfo['qualtrics_survey_id'], $prep_data, array(
             "responseId" => $survey_response_data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE],
             "id_users" => $user_id
         ));
