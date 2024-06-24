@@ -1097,7 +1097,6 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
                 "save_data" => isset($data['save_data']) ? 1 : 0
             ));
             $this->db->commit();
-            $this->db->clear_cache($this->db->get_cache()::CACHE_TYPE_SECTIONS);
             return $res;
         } catch (Exception $e) {
             $this->db->rollback();
@@ -1134,7 +1133,6 @@ class ModuleQualtricsSurveyModel extends ModuleQualtricsModel
                 array('id' => $data['id'])
             );
             $this->db->commit();
-            $this->db->clear_cache($this->db->get_cache()::CACHE_TYPE_SECTIONS);
             return $res;
         } catch (Exception $e) {
             $this->db->rollback();
