@@ -120,7 +120,7 @@ $(document).ready(function () {
     tableProjects.contextualActions(actionOptionsProjects);
 
     $(function () {
-        $('[data-toggle="popover"]').popover({ html: true });
+        $('[data-bs-toggle="popover"]').popover({ html: true });
     });    
 
 });

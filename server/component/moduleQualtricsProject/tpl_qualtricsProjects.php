@@ -7,8 +7,8 @@
     <div class="card-header collapsible">
         <div class="d-flex align-items-center">
             Projects
-            <div class="ml-auto">
-                <i class="card-icon-collapse ml-3 fas fa-angle-double-up"></i>
+            <div class="ms-auto">
+                <i class="card-icon-collapse ms-3 fas fa-angle-double-up"></i>
             </div>
         </div>
     </div>

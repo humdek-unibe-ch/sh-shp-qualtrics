@@ -113,7 +113,7 @@ $(document).ready(function () {
     table.contextualActions(actionOptions);
 
     $(function () {
-        $('[data-toggle="popover"]').popover({ html: true });
+        $('[data-bs-toggle="popover"]').popover({ html: true });
     });
 
     //confirmation for Qualtrics sync on survey
