@@ -12,3 +12,4 @@ This is a SelfhelpPlugin that is used for [Qualtrics](https://www.qualtrics.com)
 # Requirements
 
  - SelfHelp v5.0.0+
+ - pdftk v2.0.2 for the PDF generation. PHP should have access to the `pdftk` binary.
