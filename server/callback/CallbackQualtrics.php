@@ -1296,24 +1296,7 @@ class CallbackQualtrics extends BaseCallback
                         }
                     } else if ($data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_finished) {
                         //update survey response
-                        $update_id = $this->update_survey_response($data);
-                        $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
-                        $result['selfhelpCallback']["delete_reminders"] = $scheduled_reminders;
-                        if ($scheduled_reminders && count($scheduled_reminders) > 0) {
-                            $result['selfhelpCallback']["delete_reminders_result"] = $this->delete_reminders($scheduled_reminders);
-                        }
-                        if ($update_id > 0) {
-                            //successfully updated survey response
-                            $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
-                            if ($this->is_legacy()) {
-                                $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id); //legacy actions
-                                $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
-                            }
-                        } else {
-                            //something went wrong; survey resposne was not updated
-                            $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not updated.";
-                            $result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
-                        }
+                        $update_id = $this->update_survey_response($data);                        
                     }
                 }
             }

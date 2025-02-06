@@ -1,6 +1,6 @@
 # v2.3.5
 ### Bugfix
- - fix `legacy` actions that depends on the qualtrics data
+ - fix `legacy` actions that depends on the Qualtrics data
 
 # v2.3.4 - Requires SelfHelp v7.0.0+
 ### New Features
