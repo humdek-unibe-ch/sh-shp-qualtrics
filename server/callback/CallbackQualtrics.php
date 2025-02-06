@@ -193,12 +193,12 @@ class CallbackQualtrics extends BaseCallback
                 WHERE qualtrics_survey_id = :sid AND trigger_type = :trigger_type 
                 AND action_schedule_type <> 'Nothing'";
         return $this->db->query_db(
-                $sqlGetActions,
-                array(
-                    "sid" => $sid,
-                    "trigger_type" => $trigger_type
-                )
-            );
+            $sqlGetActions,
+            array(
+                "sid" => $sid,
+                "trigger_type" => $trigger_type
+            )
+        );
     }
 
     /**
@@ -1321,16 +1321,35 @@ class CallbackQualtrics extends BaseCallback
         $end_time = microtime(true);
         $result['time'] = [];
         $result['time']['exec_time'] = $end_time - $start_time;
-        $result['time']['start_date'] = $start_date;
-        $this->update_callback_log($callback_log_id, $result);
-        echo json_encode($result);
+        $result['time']['start_date'] = $start_date;        
         if ($result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] == CallbackQualtrics::CALLBACK_SUCCESS) {
             //validation passed; try to execute            
             if ($data[ModuleQualtricsSurveyModel::QUALTRICS_TRIGGER_TYPE_VARIABLE] === actionTriggerTypes_finished) {
                 // save the data
                 $this->save_qualtrics_response($surveyInfo, $data);
+
+                // legacy qualtrics actions after the data is saved
+                $scheduled_reminders = $this->get_scheduled_reminders($user_id, $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_ID_VARIABLE]);
+                $result['selfhelpCallback']["delete_reminders"] = $scheduled_reminders;
+                if ($scheduled_reminders && count($scheduled_reminders) > 0) {
+                    $result['selfhelpCallback']["delete_reminders_result"] = $this->delete_reminders($scheduled_reminders);
+                }
+                if ($update_id > 0) {
+                    //successfully updated survey response
+                    $result['selfhelpCallback'][] = "Success. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was updated.";
+                    if ($this->is_legacy()) {
+                        $result['selfhelpCallback'][] = $this->queue_event_from_actions($data, $user_id); //legacy actions
+                        $result = array_merge($result, $this->check_functions_from_actions($data, $user_id));
+                    }
+                } else {
+                    //something went wrong; survey resposne was not updated
+                    $result['selfhelpCallback'][] = "Error. Response " . $data[ModuleQualtricsSurveyModel::QUALTRICS_SURVEY_RESPONSE_ID_VARIABLE] . " was not updated.";
+                    $result[ModuleQualtricsSurveyModel::QUALTRICS_CALLBACK_STATUS] = CallbackQualtrics::CALLBACK_ERROR;
+                }
             }
         }
+        $this->update_callback_log($callback_log_id, $result);
+        echo json_encode($result);
     }
 
     /**

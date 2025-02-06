@@ -1,3 +1,7 @@
+# v2.3.5
+### Bugfix
+ - fix `legacy` actions that depends on the qualtrics data
+
 # v2.3.4 - Requires SelfHelp v7.0.0+
 ### New Features
  - make it compatible with the `user_input` refactoring
